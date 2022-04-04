@@ -15,7 +15,7 @@ export const Navbar = () => {
                 className="navbar-brand" 
                 to="/"
             >
-                Asociaciones
+                Gestor
             </Link>
 
             <div className="navbar-collapse">
@@ -42,6 +42,7 @@ export const Navbar = () => {
                     <button 
                         className="btn btn-primary" 
                         onClick={ handleLogOut }
+                        id='btn-logout'
                     >
                         Logout
                     </button>
