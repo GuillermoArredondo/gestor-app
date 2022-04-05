@@ -1,11 +1,15 @@
 import React from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 
 export const Navbar = () => {
 
-    //TODO salir de la app
+    const navigate = useNavigate();
+
+
     const handleLogOut = () => {
-        console.log('salir de la app');
+        navigate('/login', {
+            replace: true
+        });
     }
 
     return (
@@ -34,6 +38,8 @@ export const Navbar = () => {
                     >
                         Productos
                     </NavLink>
+                    
+                    
                 </div>
             </div>
 
