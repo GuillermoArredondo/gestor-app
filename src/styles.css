@@ -14,3 +14,16 @@
 #btn-logout{
     margin-right:  20px;
 }
+
+i{
+    font-size: 1.5rem; 
+}
+
+tr{
+    vertical-align: middle;
+}
+
+a{
+    cursor: pointer;
+    color: 'Black'
+}
