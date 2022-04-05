@@ -2,6 +2,12 @@ import React from 'react'
 
 export const Productos = () => {
   return (
-    <h1>Productos</h1>
+    <>
+      <br></br>
+      <br></br>
+      <h3>Productos</h3>
+      <hr></hr>
+      
+    </>
   )
 }

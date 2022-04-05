@@ -19,10 +19,10 @@ export const LoginScreen = () => {
     <div className="container">
     <div className="row">
       <div className="col-sm-9 col-md-7 col-lg-5 mx-auto">
-        <div className="card border-0 shadow rounded-3 my-5">
+        <div className="card border-3 shadow rounded-3 my-5">
           <div className="card-body p-4 p-sm-5">
             <h3 className="card-title text-center mb-5 fw fs-3">Iniciar Sesión</h3>
-            <form>
+            <form onSubmit={ handleLogin }>
               <div className="form-floating mb-3">
                 <input type="email" className="form-control" id="floatingInput" placeholder="name@example.com" />
                 <label for="floatingInput">Usuario</label>
@@ -37,8 +37,9 @@ export const LoginScreen = () => {
               <br></br>
 
               <div className="d-grid">
-                <button className="btn btn-primary btn-login text-uppercase fw-bold" type="submit">Log
-                  in</button>
+                <button className="btn btn-primary btn-login text-uppercase fw-bold" type="submit">
+                  Log in
+                </button>
               </div>
               
             </form>

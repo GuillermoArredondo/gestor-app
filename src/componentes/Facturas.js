@@ -2,6 +2,13 @@ import React from 'react'
 
 export const Facturas = () => {
   return (
-    <h1>Facturas</h1>
+    <>
+      <br></br>
+      <br></br>
+      <h3>Facturas</h3>
+      <hr></hr>
+      
+    </>
+    
   )
 }

@@ -9,11 +9,18 @@ export const DashBoardRoutes = () => {
   return (
     <>
         <Navbar></Navbar>
+
+        <div className='container'>
+
         <Routes>
                 <Route path="/" element={<GestorApp />} />
                 <Route path="/Facturas" element={<Facturas />} />
                 <Route path="/Productos" element={<Productos />} />
         </Routes>
+
+        </div>
+
+        
     </>
   )
 }
