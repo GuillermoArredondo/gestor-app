@@ -1,11 +1,15 @@
 import React from 'react'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 
 export const Navbar = () => {
 
-    //TODO salir de la app
+    const navigate = useNavigate();
+
+
     const handleLogOut = () => {
-        console.log('salir de la app');
+        navigate('/login', {
+            replace: true
+        });
     }
 
     return (
@@ -15,7 +19,7 @@ export const Navbar = () => {
                 className="navbar-brand" 
                 to="/"
             >
-                Asociaciones
+                Gestor
             </Link>
 
             <div className="navbar-collapse">
@@ -34,6 +38,8 @@ export const Navbar = () => {
                     >
                         Productos
                     </NavLink>
+                    
+                    
                 </div>
             </div>
 
@@ -42,6 +48,7 @@ export const Navbar = () => {
                     <button 
                         className="btn btn-primary" 
                         onClick={ handleLogOut }
+                        id='btn-logout'
                     >
                         Logout
                     </button>
