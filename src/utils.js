@@ -1,6 +1,6 @@
 
 
-const ITEMS_POR_PAGINA = 2
+const ITEMS_POR_PAGINA = 7
 
 //Metodo para calcular el numero total de paginas a partir de los items
 const getTotalPaginas = ( items ) => {
