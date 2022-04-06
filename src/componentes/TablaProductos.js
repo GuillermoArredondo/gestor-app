@@ -17,8 +17,8 @@ export const TablaProductos = (props) => {
                 <thead>
                     <tr>
                         
-                        <th style={{width: 15 + '%'}}>Titulo</th>
-                        <th style={{width: 70 + '%'}} >Descripcion</th>
+                        <th style={{width: 15 + '%'}}>Título</th>
+                        <th style={{width: 70 + '%'}}>Descripción</th>
                         <th style={{width: 5 + '%'}}>Precio</th>
 
                         <th style={{width: 5 + '%'}}>
