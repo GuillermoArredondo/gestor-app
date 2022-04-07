@@ -9,13 +9,13 @@ export const useForm = ( initialState = {} )=> {
     }
 
     const handleInputChange = ({ target }) => {
-        
+
         setValues( {
             ...values,
             [ target.name ]: target.value
         } )
 
-        console.log( 'En useForm: ', values );
+        //console.log( 'En useForm: ', values );
 
     }
 

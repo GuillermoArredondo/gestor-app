@@ -12,6 +12,9 @@ export const Productos = () => {
   //UseStates de las paginas
   const [paginaActual, setPaginaActual] = useState(1)
 
+  //UseState para poner disbaled los buttons
+  const [btnDisabled, setBtnDisabled] = useState(true);
+
   //UseStates de los inputs
   const [{ tituloValue }, handleInputChangeTitulo, reset1] = useForm({
     tituloValue: ''
@@ -23,7 +26,10 @@ export const Productos = () => {
     precioValue: ''
   });
 
+  //UseState para el boton Guardar/Editar
+  const [isSave, setIsSave] = useState(true);
 
+  
   useEffect(() => {
     getProductosData( setProductos );
     localStorage.setItem('numProd', productos.length.toString());
@@ -43,6 +49,10 @@ export const Productos = () => {
   const handleInputGuardar = (e) => {
     e.preventDefault();
 
+    if ( descValue.length < 1 ) {
+      return;
+    }
+
     const newProd = {
       titulo: tituloValue,
       desc: descValue,
@@ -56,10 +66,39 @@ export const Productos = () => {
     reset();
   }
 
+
+
+  //Funciones in middle de los handle de los useForm para checkear los disabled de los btns
+  const middleTitulo = (e) => {
+    checkDisabled();
+    handleInputChangeTitulo(e);
+  }
+
+  const middleDesc = (e) => {
+    checkDisabled();
+    handleInputChangeDesc(e)
+  }
+
+  const middlePrecio = (e) => {
+    checkDisabled();
+    handleInputChangePrecio(e);
+  }
+
+  const checkDisabled = () => {
+
+    if( (descValue.length > 1) && (tituloValue.length > 1))
+      setBtnDisabled(false);
+    else
+      setBtnDisabled(true);
+
+  }
+
+
   const reset = () => {
     reset1();
     reset2();
     reset3();
+    setBtnDisabled(true);
   }
 
 
@@ -69,7 +108,7 @@ export const Productos = () => {
       <div className='sec-uno'>
         <br></br>
         <br></br>
-        <h3>Productos</h3>
+        <h4>Productos</h4>
         <hr></hr>
 
         <br></br>
@@ -87,7 +126,7 @@ export const Productos = () => {
               placeholder='Título'
               type='text'
               name='tituloValue'
-              onChange={ handleInputChangeTitulo }
+              onChange={ middleTitulo }
               value={ tituloValue }
               ></input>
           </div>
@@ -97,14 +136,14 @@ export const Productos = () => {
               placeholder='Precio'
               type='number'
               name='precioValue'
-              onChange={ handleInputChangePrecio }
+              onChange={ middlePrecio }
               value={ precioValue }
               ></input>
           </div>
           <div className='col-1'>
             <button 
               className='btn btn-outline-primary' 
-              disabled=''
+              disabled={ btnDisabled }
               onClick={ handleInputGuardar }
               type='submit'
               >Guardar</button>
@@ -112,7 +151,7 @@ export const Productos = () => {
           <div className='col-1'>
             <button 
               className='btn btn-outline-danger' 
-              disabled=''
+              disabled={ btnDisabled }
               onClick={ reset }
               type='reset'
               >Cancelar</button>
@@ -127,7 +166,7 @@ export const Productos = () => {
               placeholder='Descripción'
               type='text'
               name='descValue'
-              onChange={ handleInputChangeDesc }
+              onChange={ middleDesc }
               value={ descValue }
               ></textarea>
           </div>

@@ -3,11 +3,11 @@ import React from 'react'
 export const TablaProductos = (props) => {
 
     const handleEditClick = (e) => {
-        e.preventDefault();
+        console.log(e.target.id);
     }
 
     const handleDeleteClick = (e) => {
-        e.preventDefault();
+        console.log(e.target.id);
     }
 
     return (
@@ -34,7 +34,7 @@ export const TablaProductos = (props) => {
                     {
                         props.productos && props.productos.map( producto => 
                             
-                            <tr>
+                            <tr key={ producto.id }>
                                 <td>
                                     {producto.titulo}
                                 </td>
@@ -46,12 +46,12 @@ export const TablaProductos = (props) => {
                                 </td>
                                 <td>
                                     <a onClick={ handleEditClick }>
-                                        <i className="bi-pencil-square"></i>
+                                        <i id={ producto.id }  className="bi-pencil-square"></i>
                                     </a>
                                 </td>
                                 <td>
                                     <a onClick={ handleDeleteClick }>
-                                        <i className="bi-x-circle-fill"></i>
+                                        <i id={ producto.id }  className="bi-x-circle-fill"></i>
                                     </a>
                                 </td>
                             </tr>
