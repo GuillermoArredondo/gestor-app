@@ -1,9 +1,23 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
-export const TablaProductos = (props) => {
+export const TablaProductos = ( props ) => {
+
+
+    useEffect(() => {
+      
+        console.log('USE EFFECT TABLA');
+
+    }, [])
+    
+
 
     const handleEditClick = (e) => {
-        console.log(e.target.id);
+        const found = props.productos.find( prod => prod.id == e.target.id)
+        props.setInfields( found );
+        props.setIsSave(false);
+        props.setBtnDisabled(false);
+        localStorage.setItem('edit', found.id);
+        console.log('ENCONTRADO: ', found);
     }
 
     const handleDeleteClick = (e) => {

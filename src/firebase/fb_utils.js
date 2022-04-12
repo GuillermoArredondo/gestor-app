@@ -30,5 +30,10 @@ export const addProducto = ( producto ) => {
 }
 
 
+export const updateProduct = async( producto ) => {
+    //await updateDoc(doc(db, 'prodcuts', producto.id),  { check: !ite.check } );
+}
+
+
 
 

@@ -4,6 +4,7 @@ import { TablaProductos } from './TablaProductos';
 import Paginacion from '../ui/paginacion';
 import { getTotalPaginas, ITEMS_POR_PAGINA } from '../utils';
 import { useForm } from '../Hooks/useForm';
+import { CompModal } from '../ui/Modal';
 
 export const Productos = () => {
 
@@ -16,23 +17,29 @@ export const Productos = () => {
   const [btnDisabled, setBtnDisabled] = useState(true);
 
   //UseStates de los inputs
-  const [{ tituloValue }, handleInputChangeTitulo, reset1] = useForm({
+  const [{ tituloValue }, handleInputChangeTitulo, tituloChanges, reset1] = useForm({
     tituloValue: ''
   });
-  const [{ descValue }, handleInputChangeDesc, reset2] = useForm({
+  const [{ descValue }, handleInputChangeDesc, descChanges, reset2] = useForm({
     descValue: ''
   });
-  const [{ precioValue }, handleInputChangePrecio, reset3] = useForm({
+  const [{ precioValue }, handleInputChangePrecio, precioChanges, reset3] = useForm({
     precioValue: ''
   });
 
   //UseState para el boton Guardar/Editar
   const [isSave, setIsSave] = useState(true);
 
+  //UseState para el modal de editar
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+
+
   
   useEffect(() => {
     getProductosData( setProductos );
     localStorage.setItem('numProd', productos.length.toString());
+    console.log('USE EFFECT');
   }, [])
 
   console.log(productos);
@@ -59,11 +66,21 @@ export const Productos = () => {
       precio: precioValue,
     }
 
+    localStorage.setItem('numProd', (productos.length + 1).toString());
     addProducto( newProd );
-
     getProductosData( setProductos );
-    localStorage.setItem('numProd', productos.length.toString());
     reset();
+  }
+
+  const handleInputEditar = (e) => {
+
+    e.preventDefault();
+
+    if ( descValue.length < 1 ) {
+      return;
+    }
+
+    setShow(true);
   }
 
 
@@ -86,10 +103,15 @@ export const Productos = () => {
 
   const checkDisabled = () => {
 
+  console.log( btnDisabled );
+
     if( (descValue.length > 1) && (tituloValue.length > 1))
       setBtnDisabled(false);
     else
       setBtnDisabled(true);
+    
+  console.log( btnDisabled );
+    
 
   }
 
@@ -99,6 +121,14 @@ export const Productos = () => {
     reset2();
     reset3();
     setBtnDisabled(true);
+    setIsSave(true);
+    //checkDisabled();
+  }
+
+  const setInFields = ( producto ) => {
+    tituloChanges( document.getElementsByName('tituloValue')[0], producto.titulo );
+    descChanges( document.getElementsByName('descValue')[0], producto.desc );
+    precioChanges( document.getElementsByName('precioValue')[0], producto.precio );
   }
 
 
@@ -113,7 +143,14 @@ export const Productos = () => {
 
         <br></br>
 
-        <TablaProductos productos={ProductosPorPagina}></TablaProductos>
+        <TablaProductos 
+          productos={ ProductosPorPagina } 
+          setInfields={ setInFields } 
+          setIsSave={ setIsSave }
+          setBtnDisabled={ setBtnDisabled }
+          >
+
+        </TablaProductos>
       </div>
 
 
@@ -140,7 +177,10 @@ export const Productos = () => {
               value={ precioValue }
               ></input>
           </div>
-          <div className='col-1'>
+
+          {
+            isSave ? 
+            <div className='col-1'>
             <button 
               className='btn btn-outline-primary' 
               disabled={ btnDisabled }
@@ -148,6 +188,18 @@ export const Productos = () => {
               type='submit'
               >Guardar</button>
           </div>
+          :
+          <div className='col-1'>
+            <button 
+              className='btn btn-outline-primary' 
+              disabled={ btnDisabled }
+              onClick={ handleInputEditar }
+              type='submit'
+              >Editar</button>
+          </div>
+          }
+
+          
           <div className='col-1'>
             <button 
               className='btn btn-outline-danger' 
@@ -185,6 +237,7 @@ export const Productos = () => {
         </div>
       </div>
 
+      <CompModal show={ show } handleClose={ handleClose } ></CompModal>
     </>
   )
 }

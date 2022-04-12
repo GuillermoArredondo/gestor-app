@@ -50,7 +50,7 @@ export const Navbar = () => {
                         onClick={ handleLogOut }
                         id='btn-logout'
                     >
-                        Logout
+                        Cerrar Sesión
                     </button>
                 </ul>
             </div>
