@@ -66,9 +66,20 @@ export const TablaProductos = ( props ) => {
                                 <td>
                                     {producto.titulo}
                                 </td>
-                                <td>
-                                    {producto.desc}
-                                </td>
+                                
+                                    {
+                                        producto.desc.length <= 100 ?
+                                        <td>
+                                        {producto.desc}
+                                        </td>
+                                        :
+                                        <td>
+                                        {producto.desc.substring(0,100) + ' ...'}
+                                        </td>
+                                    }
+
+                                    
+                                
                                 <td>
                                     {producto.precio}
                                 </td>
