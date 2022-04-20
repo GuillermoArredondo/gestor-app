@@ -1,4 +1,4 @@
-import { collection, getDocs,  query, addDoc } from 'firebase/firestore';
+import { collection, getDocs,  query, addDoc, updateDoc, doc, deleteDoc} from 'firebase/firestore';
 import { db } from './firebase';
 
 
@@ -31,7 +31,19 @@ export const addProducto = ( producto ) => {
 
 
 export const updateProduct = async( producto ) => {
-    //await updateDoc(doc(db, 'prodcuts', producto.id),  { check: !ite.check } );
+    const newID = localStorage.getItem('numProd');
+    console.log( 'updateProduct: ',producto.id )
+    await updateDoc(doc(db, 'prodcuts', producto.id),  { 
+        titulo: producto.titulo,
+        desc: producto.desc,
+        precio: producto.precio,
+        id: newID
+     } );
+}
+
+
+export const deleteProduct = async( id ) => {
+    await deleteDoc(doc(db, 'prodcuts', id));
 }
 
 

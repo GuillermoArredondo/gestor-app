@@ -32,6 +32,10 @@ a{
     height: 65vh;
 }
 
+.sec-tres{
+    padding-right: 92%;
+}
+
 .page-item.active .page-link {
     z-index: 3;
     color: #fff;

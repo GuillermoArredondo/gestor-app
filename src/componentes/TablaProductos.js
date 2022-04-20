@@ -1,6 +1,12 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react';
+import { CompModal } from '../ui/Modal';
 
 export const TablaProductos = ( props ) => {
+
+
+    //UseState para el modal de borrar
+    const [showBorrar, setShowBorrar] = useState(false);
+    const handleCloseBorrar = () => setShowBorrar(false);
 
 
     useEffect(() => {
@@ -21,7 +27,15 @@ export const TablaProductos = ( props ) => {
     }
 
     const handleDeleteClick = (e) => {
+        localStorage.setItem('delete', e.target.id);
         console.log(e.target.id);
+        setShowBorrar(true);
+    }
+
+    const handleDeleteProd = () => {
+
+        props.deleteProd( handleCloseBorrar );
+    
     }
 
     return (
@@ -75,6 +89,18 @@ export const TablaProductos = ( props ) => {
 
                 </tbody>
             </table>
+
+
+            <CompModal
+                show={ showBorrar }
+                handleClose={ handleCloseBorrar }
+                btnAceptar={ handleDeleteProd }
+                btnText={ 'Eliminar' }
+                style={ 'danger' }
+                name='ModalBorrar'
+                titulo='Eliminar producto'
+                desc='¿Estás seguro que deseas eliminar este producto?'
+            ></CompModal>
 
 
         </>
