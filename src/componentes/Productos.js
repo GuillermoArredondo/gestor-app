@@ -186,26 +186,28 @@ export const Productos = () => {
     <>
 
       <div className='sec-uno'>
-        <br></br>
+        {/* <br></br>
         <br></br>
         <h4>Productos</h4>
         <hr></hr>
+        <br></br> */}
+      </div>
 
-        <br></br>
-
-        <TablaProductos
+      <div className='sec-tabla-productos'>
+      <TablaProductos
           productos={ProductosPorPagina}
           setInfields={setInFields}
           setIsSave={setIsSave}
           setBtnDisabled={setBtnDisabled}
           deleteProd={deleteProd}
         >
-
         </TablaProductos>
       </div>
+        
+      
 
 
-      <form>
+      <form className='sec-dos'>
 
         <div className='row'>
           <div className='col-6'>
@@ -305,7 +307,7 @@ export const Productos = () => {
         </div>
 
         <div className='col-1' >
-          <div className='sec-dos'>
+          <div>
             <Paginacion pagina={paginaActual} total={getTotalPaginas(productos)} onChange={(pagina) => {
 
               setPaginaActual(pagina)

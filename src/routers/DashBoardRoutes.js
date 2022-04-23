@@ -4,6 +4,7 @@ import { Routes, Route, Link } from "react-router-dom";
 import { Facturas } from '../componentes/Facturas';
 import { Productos } from '../componentes/Productos';
 import { GestorApp } from '../GestorApp';
+import { NuevaFactura } from '../componentes/NuevaFactura';
 
 export const DashBoardRoutes = () => {
   return (
@@ -16,6 +17,7 @@ export const DashBoardRoutes = () => {
                 <Route path="/" element={<GestorApp />} />
                 <Route path="/Facturas" element={<Facturas />} />
                 <Route path="/Productos" element={<Productos />} />
+                <Route path='/NuevaFactura' element={<NuevaFactura />} />
         </Routes>
 
         </div>

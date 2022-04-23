@@ -1,3 +1,7 @@
+body{
+    font-size: medium;
+}
+
 .navbar-brand{
     margin-left: 2%;
     font-size: x-large;
@@ -29,7 +33,15 @@ a{
 }
 
 .sec-uno{
-    height: 65vh;
+    height: 5vh;
+}
+
+.sec-tabla-productos{
+    height: 60vh;
+}
+
+.sec-dos{
+    height: 15vh;
 }
 
 .sec-tres{
