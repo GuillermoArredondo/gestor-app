@@ -1,6 +1,6 @@
 import  { useState } from 'react'
 
-export const useForm = ( initialState = {} )=> {
+export const useFormDate = ( initialState = {} )=> {
 
     const [values, setValues] = useState(initialState);
 
@@ -8,13 +8,13 @@ export const useForm = ( initialState = {} )=> {
         setValues( initialState );
     }
 
-    const handleInputChange = ({ target }) => {
+    const handleInputChange = ( e, name ) => {
 
-        console.log(target.name , target.value);
+        console.log(name , e);
 
         setValues( {
             ...values,
-            [ target.name ]: target.value
+            [ name]: e
         } )
 
         //console.log( 'En useForm: ', values );

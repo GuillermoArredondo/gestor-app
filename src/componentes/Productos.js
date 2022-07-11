@@ -281,7 +281,6 @@ export const Productos = () => {
 
       {/* paginacion y alertas */}
       <br></br>
-
       <div className='row'>
 
         <div className='col-11' >
