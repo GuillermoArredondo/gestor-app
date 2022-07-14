@@ -1,13 +1,24 @@
+import InputGroup from 'react-bootstrap/InputGroup';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
+import Form from 'react-bootstrap/Form';
 import { useForm } from '../Hooks/useForm';
 import { useFormDate } from '../Hooks/useFormDate';
+import { useFormInput } from '../Hooks/useFormInput';
 import React, { useEffect, useState } from 'react'
-import DatePicker, {registerLocale} from 'react-datepicker';
+import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css'
 import es from 'date-fns/locale/es';
+import { getProductosData } from '../firebase/fb_utils'
 registerLocale("es", es);
 
 
+
+
 export const NuevaFactura = () => {
+
+  //Lista productos
+  const [productos, setProductos] = useState([]);
 
   //UseStates de los inputs
   const [{ tituloValue }, handleInputChangeTitulo, tituloChanges, reset1] = useForm({
@@ -17,12 +28,17 @@ export const NuevaFactura = () => {
     descValue: ''
   });
 
+  //UseState para el input de al lado del Dropdown
+  const [{ prodSelected }, handleInputChangeProd, prodChanges, reset4] = useFormInput({
+    prodSelected: ''
+  });
+
   //UseState para poner disbaled los buttons
   const [btnDisabled, setBtnDisabled] = useState(true);
 
   //UseState para la fecha del DatePicker
-  const fecha = new Date().toLocaleDateString()
-  const [{ fechaValue }, handleInputChangeFecha, fechaChanges, reset3] = useFormDate({ fechaValue : fecha });
+  const fecha = new Date()
+  const [{ fechaValue }, handleInputChangeFecha, fechaChanges, reset3] = useFormDate({ fechaValue: fecha });
 
 
   const middleTitulo = (e) => {
@@ -40,6 +56,12 @@ export const NuevaFactura = () => {
     handleInputChangeFecha(e, 'fechaValue');
   }
 
+  const middleProd = (e) => {
+    console.log(e.target);
+    document.getElementById('prodSelected').value = e.target.name;
+  }
+
+
   const checkDisabled = () => {
     if ((descValue.length > 1) && (tituloValue.length > 1))
       setBtnDisabled(false);
@@ -56,6 +78,11 @@ export const NuevaFactura = () => {
     //setIsSave(true);
     //checkDisabled();
   }
+
+  useEffect(() => {
+    getProductosData(setProductos);
+    //localStorage.setItem('numProd', productos.length.toString());
+  }, [])
 
 
   //Guardar Nueva Factura
@@ -90,7 +117,6 @@ export const NuevaFactura = () => {
       <h4>Nueva Factura</h4>
       <hr></hr>
 
-
       {/* Titulo, fecha  y descripcion de la factura */}
       <form className='sec-uno-fac'>
 
@@ -107,6 +133,7 @@ export const NuevaFactura = () => {
           </div>
           <div className='col-4'>
             <DatePicker
+              dateFormat="dd-MM-yyyy"
               className='form-control '
               name='fechaValue'
               type='text'
@@ -149,6 +176,52 @@ export const NuevaFactura = () => {
               onChange={middleDesc}
               value={descValue}
             ></textarea>
+          </div>
+        </div>
+
+        <br></br>
+
+        <div className='row'>
+          <div className='col-11'>
+            <InputGroup className="mb-3">
+              <DropdownButton
+                variant="outline-secondary"
+                title="Productos "
+                id="input-group-dropdown-1"
+              >
+                {
+                  productos && productos.map( producto => 
+                    
+                      producto.desc.length <= 100 ?
+                      <Dropdown.Item name={producto.titulo} onClick={middleProd}>
+                          <a name={ `${producto.titulo}   -   ${producto.desc}   -   ${producto.precio} ` }  style={{color:'black'}}>{producto.titulo} &nbsp; &middot; &nbsp;  </a>
+                          <a name={ `${producto.titulo}   -   ${producto.desc}   -   ${producto.precio} ` }  style={{color:"grey"}}>{producto.desc}</a>
+                      </Dropdown.Item>
+                      :
+                      <Dropdown.Item name={producto.titulo} onClick={middleProd}>
+                          <a name={ `${producto.titulo}   -   ${producto.desc.substring(0,100) + ' ...'}   -   ${producto.precio} ` }  style={{color:'black'}}>{producto.titulo}  &nbsp; &middot; &nbsp;   </a>
+                          <a name={ `${producto.titulo}   -   ${producto.desc.substring(0,100) + ' ...'}   -   ${producto.precio} ` }  style={{color:"grey"}}>{producto.desc.substring(0,100) + ' ...'}</a>
+                      </Dropdown.Item>
+                    
+
+                  )
+                }
+
+              </DropdownButton>
+              <Form.Control 
+                disabled aria-label="Text input with dropdown button"
+                id='prodSelected'
+                />
+            </InputGroup>
+          </div>
+
+          <div className='col-1'>
+            <button
+                className='btn btn-outline-primary'
+                
+                
+                
+              >Añadir</button>
           </div>
         </div>
 
