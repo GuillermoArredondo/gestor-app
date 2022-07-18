@@ -10,6 +10,7 @@ import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css'
 import es from 'date-fns/locale/es';
 import { getProductosData } from '../firebase/fb_utils'
+import { TablaProductosNF } from './TablaProductosNF';
 registerLocale("es", es);
 
 
@@ -26,6 +27,9 @@ export const NuevaFactura = () => {
   });
   const [{ descValue }, handleInputChangeDesc, descChanges, reset2] = useForm({
     descValue: ''
+  });
+  const [{ cantidadValue }, handleInputChangeCantidad, cantidadChanges, reset5] = useForm({
+    cantidadValue: ''
   });
 
   //UseState para el input de al lado del Dropdown
@@ -56,6 +60,12 @@ export const NuevaFactura = () => {
     handleInputChangeFecha(e, 'fechaValue');
   }
 
+  const middleCantidad = (e) => {
+    if(e.target.value >= 0){
+      handleInputChangeCantidad(e);
+    }
+  }
+
   const middleProd = (e) => {
     console.log(e.target);
     document.getElementById('prodSelected').value = e.target.name;
@@ -74,6 +84,8 @@ export const NuevaFactura = () => {
     reset1();
     reset2();
     reset3();
+    reset4();
+    reset5();
     setBtnDisabled(true);
     //setIsSave(true);
     //checkDisabled();
@@ -97,7 +109,7 @@ export const NuevaFactura = () => {
     // const newProd = {
     //   titulo: tituloValue,
     //   desc: descValue,
-    //   precio: precioValue,
+    //   precio: cantidadValue,
     // }
 
     // localStorage.setItem('numProd', (productos.length + 1).toString());
@@ -181,8 +193,9 @@ export const NuevaFactura = () => {
 
         <br></br>
 
+        {/* Productos y boton de añadir */}
         <div className='row'>
-          <div className='col-11'>
+          <div className='col-9'>
             <InputGroup className="mb-3">
               <DropdownButton
                 variant="outline-secondary"
@@ -192,15 +205,15 @@ export const NuevaFactura = () => {
                 {
                   productos && productos.map( producto => 
                     
-                      producto.desc.length <= 100 ?
+                      producto.desc.length <= 80 ?
                       <Dropdown.Item name={producto.titulo} onClick={middleProd}>
                           <a name={ `${producto.titulo}   -   ${producto.desc}   -   ${producto.precio} ` }  style={{color:'black'}}>{producto.titulo} &nbsp; &middot; &nbsp;  </a>
                           <a name={ `${producto.titulo}   -   ${producto.desc}   -   ${producto.precio} ` }  style={{color:"grey"}}>{producto.desc}</a>
                       </Dropdown.Item>
                       :
                       <Dropdown.Item name={producto.titulo} onClick={middleProd}>
-                          <a name={ `${producto.titulo}   -   ${producto.desc.substring(0,100) + ' ...'}   -   ${producto.precio} ` }  style={{color:'black'}}>{producto.titulo}  &nbsp; &middot; &nbsp;   </a>
-                          <a name={ `${producto.titulo}   -   ${producto.desc.substring(0,100) + ' ...'}   -   ${producto.precio} ` }  style={{color:"grey"}}>{producto.desc.substring(0,100) + ' ...'}</a>
+                          <a name={ `${producto.titulo}   -   ${producto.desc.substring(0,80) + ' ...'}   -   ${producto.precio} ` }  style={{color:'black'}}>{producto.titulo}  &nbsp; &middot; &nbsp;   </a>
+                          <a name={ `${producto.titulo}   -   ${producto.desc.substring(0,80) + ' ...'}   -   ${producto.precio} ` }  style={{color:"grey"}}>{producto.desc.substring(0,80) + ' ...'}</a>
                       </Dropdown.Item>
                     
 
@@ -215,15 +228,31 @@ export const NuevaFactura = () => {
             </InputGroup>
           </div>
 
+          <div className='col-2'>
+          <input
+              className='form-control'
+              placeholder='Cantidad'
+              type='number'
+              name='cantidadValue'
+              onChange={middleCantidad}
+              value={cantidadValue}
+            ></input>
+          </div>
+
           <div className='col-1'>
             <button
                 className='btn btn-outline-primary'
-                
-                
-                
+                //TODO
               >Añadir</button>
           </div>
         </div>
+
+
+        {/* Tabla con los productos que se añaden */}
+        <TablaProductosNF>
+
+        </TablaProductosNF>
+
 
       </form>
 
