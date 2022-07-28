@@ -5,37 +5,33 @@ export const TablaProductosNF = ( props ) => {
 
 
     //UseState para el modal de borrar
-    const [showBorrar, setShowBorrar] = useState(false);
-    const handleCloseBorrar = () => setShowBorrar(false);
+    //const [showBorrar, setShowBorrar] = useState(false);
+    //const handleCloseBorrar = () => setShowBorrar(false);
 
 
     useEffect(() => {
-      
-        console.log('USE EFFECT TABLA');
-
+      console.log('TablaProductos: ' , props.productos.length);
     }, [])
     
 
 
-    const handleEditClick = (e) => {
-        const found = props.productos.find( prod => prod.id == e.target.id)
-        props.setInfields( found );
-        props.setIsSave(false);
-        props.setBtnDisabled(false);
-        localStorage.setItem('edit', found.id);
-        console.log('ENCONTRADO: ', found);
-    }
+    // const handleEditClick = (e) => {
+    //     const found = props.productos.find( prod => prod.id == e.target.id)
+    //     props.setInfields( found );
+    //     props.setIsSave(false);
+    //     props.setBtnDisabled(false);
+    //     localStorage.setItem('edit', found.id);
+    //     console.log('ENCONTRADO: ', found);
+    // }
 
     const handleDeleteClick = (e) => {
-        localStorage.setItem('delete', e.target.id);
-        console.log(e.target.id);
-        setShowBorrar(true);
+        //localStorage.setItem('delete', e.target.id);
+        //console.log(e.target.id);
+        //setShowBorrar(true);
     }
 
     const handleDeleteProd = () => {
-
-        props.deleteProd( handleCloseBorrar );
-    
+        //props.deleteProd( handleCloseBorrar );
     }
 
     return (
@@ -46,11 +42,13 @@ export const TablaProductosNF = ( props ) => {
                     <tr>
                         
                         <th style={{width: 15 + '%'}}>Título</th>
-                        <th style={{width: 70 + '%'}}>Descripción</th>
-                        <th style={{width: 5 + '%'}}>Precio</th>
+                        <th style={{width: 61 + '%'}}>Descripción</th>
+                        <th style={{width: 6 + '%'}}>Cantidad</th>
+                        <th style={{width: 6 + '%'}}>€/Unidad</th>
+                        <th style={{width: 6 + '%'}}>€/Total</th>
 
-                        <th style={{width: 5 + '%'}}></th>
-                        <th style={{width: 5 + '%'}}></th>
+                        {/* <th style={{width: 5 + '%'}}></th> */}
+                        <th style={{width: 6 + '%'}}></th>
                             
                     </tr>
                 </thead>
@@ -65,26 +63,32 @@ export const TablaProductosNF = ( props ) => {
                                 </td>
                                 
                                     {
-                                        producto.desc.length <= 100 ?
+                                        producto.desc.length <= 80 ?
                                         <td>
                                         {producto.desc}
                                         </td>
                                         :
                                         <td>
-                                        {producto.desc.substring(0,100) + ' ...'}
+                                        {producto.desc.substring(0,80) + ' ...'}
                                         </td>
                                     }
 
                                     
                                 
                                 <td>
+                                    {producto.cantidad}
+                                </td>
+                                <td>
                                     {producto.precio}
                                 </td>
                                 <td>
+                                    {producto.precioTotal}
+                                </td>
+                                {/* <td>
                                     <a onClick={ handleEditClick }>
                                         <i id={ producto.id }  className="bi-pencil-square"></i>
                                     </a>
-                                </td>
+                                </td> */}
                                 <td>
                                     <a onClick={ handleDeleteClick }>
                                         <i id={ producto.id }  className="bi-x-circle-fill"></i>
@@ -99,7 +103,7 @@ export const TablaProductosNF = ( props ) => {
             </table>
 
 
-            <CompModal
+            {/* <CompModal
                 show={ showBorrar }
                 handleClose={ handleCloseBorrar }
                 btnAceptar={ handleDeleteProd }
@@ -108,7 +112,7 @@ export const TablaProductosNF = ( props ) => {
                 name='ModalBorrar'
                 titulo='Eliminar producto'
                 desc='¿Estás seguro que deseas eliminar este producto?'
-            ></CompModal>
+            ></CompModal> */}
 
 
         </>

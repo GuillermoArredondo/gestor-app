@@ -18,8 +18,11 @@ registerLocale("es", es);
 
 export const NuevaFactura = () => {
 
-  //Lista productos
+  //Lista productos para rellenar el combo
   const [productos, setProductos] = useState([]);
+
+  //Lista productos para la tabla
+  let [productosTabla, setProductosTabla] = useState([]);
 
   //UseStates de los inputs
   const [{ tituloValue }, handleInputChangeTitulo, tituloChanges, reset1] = useForm({
@@ -39,6 +42,9 @@ export const NuevaFactura = () => {
 
   //UseState para poner disbaled los buttons
   const [btnDisabled, setBtnDisabled] = useState(true);
+
+  //UseState para poner disbaled Aniadir producto
+  const [btnDisabledAniadir, setBtnDisabledAniadir] = useState(true);
 
   //UseState para la fecha del DatePicker
   const fecha = new Date()
@@ -67,7 +73,9 @@ export const NuevaFactura = () => {
   }
 
   const middleProd = (e) => {
-    console.log(e.target);
+    //console.log('Seleccionado: ' + e.target.id);
+    localStorage.setItem('prodSelec', e.target.id);
+    setBtnDisabledAniadir(false);
     document.getElementById('prodSelected').value = e.target.name;
   }
 
@@ -87,14 +95,60 @@ export const NuevaFactura = () => {
     reset4();
     reset5();
     setBtnDisabled(true);
-    //setIsSave(true);
-    //checkDisabled();
   }
 
   useEffect(() => {
     getProductosData(setProductos);
-    //localStorage.setItem('numProd', productos.length.toString());
   }, [])
+
+
+  //Añadir producto a la tabla
+  const handleInputAniadir = (e) => {
+    e.preventDefault();
+
+    if ( cantidadValue > 0 )
+    {
+      const idEncontrado = localStorage.getItem('prodSelec');
+      const found = productos.find( prod => prod.id == idEncontrado);
+      const precioTotal = cantidadValue * found.precio;
+  
+      const newProd = [...productosTabla,{
+        id : found.id,
+        titulo: found.titulo,
+        desc: found.desc,
+        cantidad: cantidadValue,
+        precio: found.precio,
+        precioTotal : precioTotal
+      }]
+  
+      console.log('NewProd: ',newProd);
+      
+      //setProductosTabla(productosTabla.push(newProd));
+      setProductosTabla(newProd);
+
+      console.log('ProductosTabla: ',productosTabla.length);
+    }else
+    {
+      document.getElementById('inputCantidad').focus();
+    }
+
+  }
+
+  const prueba = [{
+        id : 1,
+        titulo: 'prueba',
+        desc: 'prueba',
+        cantidad: 2,
+        precio: 10,
+        precioTotal : 20
+        },{
+          id : 2,
+          titulo: 'prueba',
+          desc: 'prueba',
+          cantidad: 2,
+          precio: 10,
+          precioTotal : 20
+  }]
 
 
   //Guardar Nueva Factura
@@ -207,13 +261,13 @@ export const NuevaFactura = () => {
                     
                       producto.desc.length <= 80 ?
                       <Dropdown.Item name={producto.titulo} onClick={middleProd}>
-                          <a name={ `${producto.titulo}   -   ${producto.desc}   -   ${producto.precio} ` }  style={{color:'black'}}>{producto.titulo} &nbsp; &middot; &nbsp;  </a>
-                          <a name={ `${producto.titulo}   -   ${producto.desc}   -   ${producto.precio} ` }  style={{color:"grey"}}>{producto.desc}</a>
+                          <a id={producto.id} name={ `${producto.titulo}   -   ${producto.desc}   -   ${producto.precio} ` }  style={{color:'black'}}>{producto.titulo} &nbsp; &middot; &nbsp;  </a>
+                          <a id={producto.id} name={ `${producto.titulo}   -   ${producto.desc}   -   ${producto.precio} ` }  style={{color:"grey"}}>{producto.desc}</a>
                       </Dropdown.Item>
                       :
-                      <Dropdown.Item name={producto.titulo} onClick={middleProd}>
-                          <a name={ `${producto.titulo}   -   ${producto.desc.substring(0,80) + ' ...'}   -   ${producto.precio} ` }  style={{color:'black'}}>{producto.titulo}  &nbsp; &middot; &nbsp;   </a>
-                          <a name={ `${producto.titulo}   -   ${producto.desc.substring(0,80) + ' ...'}   -   ${producto.precio} ` }  style={{color:"grey"}}>{producto.desc.substring(0,80) + ' ...'}</a>
+                      <Dropdown.Item id={producto.id} name={producto.titulo} onClick={middleProd}>
+                          <a id={producto.id} name={ `${producto.titulo}   -   ${producto.desc.substring(0,80) + ' ...'}   -   ${producto.precio} ` }  style={{color:'black'}}>{producto.titulo}  &nbsp; &middot; &nbsp;   </a>
+                          <a id={producto.id} name={ `${producto.titulo}   -   ${producto.desc.substring(0,80) + ' ...'}   -   ${producto.precio} ` }  style={{color:"grey"}}>{producto.desc.substring(0,80) + ' ...'}</a>
                       </Dropdown.Item>
                     
 
@@ -230,6 +284,7 @@ export const NuevaFactura = () => {
 
           <div className='col-2'>
           <input
+              id='inputCantidad'
               className='form-control'
               placeholder='Cantidad'
               type='number'
@@ -242,15 +297,18 @@ export const NuevaFactura = () => {
           <div className='col-1'>
             <button
                 className='btn btn-outline-primary'
-                //TODO
+                disabled={btnDisabledAniadir}
+                onClick={handleInputAniadir}
               >Añadir</button>
           </div>
         </div>
 
 
         {/* Tabla con los productos que se añaden */}
-        <TablaProductosNF>
-
+        <TablaProductosNF
+          id='tablaProd'
+          productos={productosTabla}
+          >
         </TablaProductosNF>
 
 
