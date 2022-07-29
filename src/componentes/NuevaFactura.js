@@ -106,10 +106,12 @@ export const NuevaFactura = () => {
   const handleInputAniadir = (e) => {
     e.preventDefault();
 
-    if ( cantidadValue > 0 )
+    const idEncontrado = localStorage.getItem('prodSelec');
+    const found = productos.find( prod => prod.id == idEncontrado);
+
+    if ( (cantidadValue > 0) && sePuedeAniadir(found))
     {
-      const idEncontrado = localStorage.getItem('prodSelec');
-      const found = productos.find( prod => prod.id == idEncontrado);
+      
       const precioTotal = cantidadValue * found.precio;
   
       const newProd = [...productosTabla,{
@@ -121,12 +123,7 @@ export const NuevaFactura = () => {
         precioTotal : precioTotal
       }]
   
-      console.log('NewProd: ',newProd);
-      
-      //setProductosTabla(productosTabla.push(newProd));
       setProductosTabla(newProd);
-
-      console.log('ProductosTabla: ',productosTabla.length);
     }else
     {
       document.getElementById('inputCantidad').focus();
@@ -134,21 +131,31 @@ export const NuevaFactura = () => {
 
   }
 
-  const prueba = [{
-        id : 1,
-        titulo: 'prueba',
-        desc: 'prueba',
-        cantidad: 2,
-        precio: 10,
-        precioTotal : 20
-        },{
-          id : 2,
-          titulo: 'prueba',
-          desc: 'prueba',
-          cantidad: 2,
-          precio: 10,
-          precioTotal : 20
-  }]
+  const sePuedeAniadir = (prod) => {
+    let ok = true;
+    console.log('sePuedeAniadir: ', prod.id);
+    productosTabla.forEach(producto => {
+      if (producto.id == prod.id){
+        console.log('sePuedeAniadirDentro del forEach: ', prod.id);
+        ok = false;
+      }
+    });
+    return ok;
+  }
+
+  //Eliminar un producto de la tabla
+  const deleteProdTabla = (found) => {
+    removeItemFromArr(productosTabla, found);
+    setProductosTabla(prevProductos => ([...productosTabla]));
+  }
+
+  function removeItemFromArr ( arr, item ) {
+    var i = arr.indexOf( item );
+ 
+    if ( i !== -1 ) {
+        arr.splice( i, 1 );
+    }
+  }
 
 
   //Guardar Nueva Factura
@@ -308,6 +315,7 @@ export const NuevaFactura = () => {
         <TablaProductosNF
           id='tablaProd'
           productos={productosTabla}
+          deleteProdTabla={deleteProdTabla}
           >
         </TablaProductosNF>
 

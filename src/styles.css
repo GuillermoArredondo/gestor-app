@@ -62,3 +62,15 @@ a{
 .page-link:hover{
     color: #000000;
 }
+
+.totalNFLabel{
+    float: right;
+    margin-right: 1%;
+    font-weight: bolder;
+}
+
+.totalNFPrecio{
+    float: right;
+    margin-right: 8%;
+    font-weight: bolder;
+}

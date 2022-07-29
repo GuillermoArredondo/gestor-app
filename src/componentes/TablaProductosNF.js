@@ -25,13 +25,28 @@ export const TablaProductosNF = ( props ) => {
     // }
 
     const handleDeleteClick = (e) => {
-        //localStorage.setItem('delete', e.target.id);
-        //console.log(e.target.id);
-        //setShowBorrar(true);
+        const found = props.productos.find( prod => prod.id == e.target.id)
+        props.deleteProdTabla(found);
     }
 
     const handleDeleteProd = () => {
         //props.deleteProd( handleCloseBorrar );
+    }
+
+    const getTotal = () => {
+        let total = 0;
+        props.productos && props.productos.map( producto => 
+            total = total + (producto.precio * producto.cantidad)
+        )
+        return total;
+    }
+
+    const getIva = () => {
+        return getTotal() * 0.21;
+    }
+
+    const getTotalIva = () => {
+        return getTotal() + getIva();
     }
 
     return (
@@ -63,13 +78,13 @@ export const TablaProductosNF = ( props ) => {
                                 </td>
                                 
                                     {
-                                        producto.desc.length <= 80 ?
+                                        producto.desc.length <= 100 ?
                                         <td>
                                         {producto.desc}
                                         </td>
                                         :
                                         <td>
-                                        {producto.desc.substring(0,80) + ' ...'}
+                                        {producto.desc.substring(0,100) + ' ...'}
                                         </td>
                                     }
 
@@ -101,6 +116,29 @@ export const TablaProductosNF = ( props ) => {
 
                 </tbody>
             </table>
+            
+            {/* Total */}
+            <div className='row'>
+                <div className='col-12'>
+                    <p className='totalNFPrecio' >{getTotal()} €</p>
+                    <p className='totalNFLabel' >Total:</p>
+                </div>
+            </div>
+            {/* Iva */}
+            <div className='row'>
+                <div className='col-12'>
+                    <p className='totalNFPrecio' >{getIva()} €</p>
+                    <p className='totalNFLabel' >IVA 21%:</p>
+                </div>
+            </div>
+            {/* Total + Iva */}
+            <div className='row'>
+                <div className='col-12'>
+                    <p className='totalNFPrecio' >{getTotalIva()} €</p>
+                    <p className='totalNFLabel' >Total + IVA:</p>
+                </div>
+            </div>
+            
 
 
             {/* <CompModal
