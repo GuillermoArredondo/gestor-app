@@ -47,5 +47,19 @@ export const deleteProduct = async( id ) => {
 }
 
 
+export const addFactura = ( factura ) => {
+    addDoc(collection(db, 'facturas'), { 
+        titulo: factura.titulo,
+        desc: factura.desc,
+        fecha: factura.fecha,
+        total: factura.total,
+        iva: factura.iva,
+        totalIva: factura.totalIva,
+        productos: factura.productos,
+        cantidades: factura.cantidades
+    });
+}
+
+
 
 

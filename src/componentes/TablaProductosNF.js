@@ -1,53 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { CompModal } from '../ui/Modal';
+import { getTotal, getTotalIva, getIva } from '../utils';
 
 export const TablaProductosNF = ( props ) => {
-
-
-    //UseState para el modal de borrar
-    //const [showBorrar, setShowBorrar] = useState(false);
-    //const handleCloseBorrar = () => setShowBorrar(false);
-
 
     useEffect(() => {
       console.log('TablaProductos: ' , props.productos.length);
     }, [])
     
 
-
-    // const handleEditClick = (e) => {
-    //     const found = props.productos.find( prod => prod.id == e.target.id)
-    //     props.setInfields( found );
-    //     props.setIsSave(false);
-    //     props.setBtnDisabled(false);
-    //     localStorage.setItem('edit', found.id);
-    //     console.log('ENCONTRADO: ', found);
-    // }
-
     const handleDeleteClick = (e) => {
         const found = props.productos.find( prod => prod.id == e.target.id)
         props.deleteProdTabla(found);
     }
 
-    const handleDeleteProd = () => {
-        //props.deleteProd( handleCloseBorrar );
-    }
 
-    const getTotal = () => {
-        let total = 0;
-        props.productos && props.productos.map( producto => 
-            total = total + (producto.precio * producto.cantidad)
-        )
-        return total;
-    }
-
-    const getIva = () => {
-        return getTotal() * 0.21;
-    }
-
-    const getTotalIva = () => {
-        return getTotal() + getIva();
-    }
 
     return (
         <>
@@ -120,37 +86,24 @@ export const TablaProductosNF = ( props ) => {
             {/* Total */}
             <div className='row'>
                 <div className='col-12'>
-                    <p className='totalNFPrecio' >{getTotal()} €</p>
+                    <p className='totalNFPrecio' >{getTotal(props.productos)} €</p>
                     <p className='totalNFLabel' >Total:</p>
                 </div>
             </div>
             {/* Iva */}
             <div className='row'>
                 <div className='col-12'>
-                    <p className='totalNFPrecio' >{getIva()} €</p>
+                    <p className='totalNFPrecio' >{getIva(props.productos)} €</p>
                     <p className='totalNFLabel' >IVA 21%:</p>
                 </div>
             </div>
             {/* Total + Iva */}
             <div className='row'>
                 <div className='col-12'>
-                    <p className='totalNFPrecio' >{getTotalIva()} €</p>
+                    <p className='totalNFPrecio' >{getTotalIva(props.productos)} €</p>
                     <p className='totalNFLabel' >Total + IVA:</p>
                 </div>
             </div>
-            
-
-
-            {/* <CompModal
-                show={ showBorrar }
-                handleClose={ handleCloseBorrar }
-                btnAceptar={ handleDeleteProd }
-                btnText={ 'Eliminar' }
-                style={ 'danger' }
-                name='ModalBorrar'
-                titulo='Eliminar producto'
-                desc='¿Estás seguro que deseas eliminar este producto?'
-            ></CompModal> */}
 
 
         </>

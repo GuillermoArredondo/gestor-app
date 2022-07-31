@@ -5,18 +5,24 @@ import Form from 'react-bootstrap/Form';
 import { useForm } from '../Hooks/useForm';
 import { useFormDate } from '../Hooks/useFormDate';
 import { useFormInput } from '../Hooks/useFormInput';
+import { addFactura } from '../firebase/fb_utils'
 import React, { useEffect, useState } from 'react'
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css'
 import es from 'date-fns/locale/es';
 import { getProductosData } from '../firebase/fb_utils'
 import { TablaProductosNF } from './TablaProductosNF';
+import { CompModal } from '../ui/Modal';
+import { getTotal, getTotalIva, getIva } from '../utils';
 registerLocale("es", es);
 
 
 
 
 export const NuevaFactura = () => {
+
+  //Variable para checkear el boton de guardar
+  let numTabla = 0;
 
   //Lista productos para rellenar el combo
   const [productos, setProductos] = useState([]);
@@ -50,7 +56,11 @@ export const NuevaFactura = () => {
   const fecha = new Date()
   const [{ fechaValue }, handleInputChangeFecha, fechaChanges, reset3] = useFormDate({ fechaValue: fecha });
 
+  //UseState para el modal de editar
+  const [showGuardar, setShowGuardar] = useState(false);
+  const handleCloseGuardar = () => setShowGuardar(false);
 
+  
   const middleTitulo = (e) => {
     checkDisabled();
     handleInputChangeTitulo(e);
@@ -81,7 +91,7 @@ export const NuevaFactura = () => {
 
 
   const checkDisabled = () => {
-    if ((descValue.length > 1) && (tituloValue.length > 1))
+    if ((descValue.length > 1) && (tituloValue.length > 1) && (numTabla >= 1))
       setBtnDisabled(false);
     else
       setBtnDisabled(true);
@@ -123,7 +133,10 @@ export const NuevaFactura = () => {
         precioTotal : precioTotal
       }]
   
-      setProductosTabla(newProd);
+      //setProductosTabla(newProd);
+      setProductosTabla(prevProductos => ([...newProd]));
+      numTabla++;
+      checkDisabled();
     }else
     {
       document.getElementById('inputCantidad').focus();
@@ -133,10 +146,8 @@ export const NuevaFactura = () => {
 
   const sePuedeAniadir = (prod) => {
     let ok = true;
-    console.log('sePuedeAniadir: ', prod.id);
     productosTabla.forEach(producto => {
       if (producto.id == prod.id){
-        console.log('sePuedeAniadirDentro del forEach: ', prod.id);
         ok = false;
       }
     });
@@ -147,6 +158,8 @@ export const NuevaFactura = () => {
   const deleteProdTabla = (found) => {
     removeItemFromArr(productosTabla, found);
     setProductosTabla(prevProductos => ([...productosTabla]));
+    numTabla--;
+    checkDisabled();
   }
 
   function removeItemFromArr ( arr, item ) {
@@ -157,9 +170,44 @@ export const NuevaFactura = () => {
     }
   }
 
-
   //Guardar Nueva Factura
+  const handleGuardarFactura = () => {
+
+    const nuevaFactura = {
+        titulo: tituloValue,
+        desc: descValue,
+        fecha: fechaValue,
+        total: getTotal(productosTabla),
+        iva: getIva(productosTabla),
+        totalIva: getTotalIva(productosTabla),
+        productos: getIdsProductos(),
+        cantidades: getCantidades()
+    }
+
+    addFactura(nuevaFactura);
+  }
+
+  const getIdsProductos = () => {
+    const ids = [];
+    productosTabla.forEach(producto => {
+      ids.push(producto.id);
+    });
+    return ids;
+  }
+
+  const getCantidades = () => {
+    const cantidades = [];
+    productosTabla.forEach(producto => {
+      cantidades.push(producto.cantidad);
+    });
+    return cantidades;
+  }
+
   const handleInputGuardar = (e) => {
+
+    e.preventDefault();
+    setShowGuardar(true);
+
     // setAnimationStyle('animate__animated animate__fadeIn'); 
     // e.preventDefault();
 
@@ -321,6 +369,17 @@ export const NuevaFactura = () => {
 
 
       </form>
+
+      <CompModal
+                show={ showGuardar }
+                handleClose={ handleCloseGuardar }
+                btnAceptar={ handleGuardarFactura }
+                btnText={ 'Guardar' }
+                style={ 'primary' }
+                name='ModalGuardar'
+                titulo='Guardar factura'
+                desc='¿Estás seguro que deseas guardar esta factura?'
+        ></CompModal>
 
     </>
 
