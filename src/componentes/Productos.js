@@ -35,7 +35,7 @@ export const Productos = () => {
   const [showEditar, setShowEditar] = useState(false);
   const handleCloseEditar = () => setShowEditar(false);
 
-
+  //States para las alertas
   const [alertText, setAlertText] = useState('');
   const [alertStyle, setAlerStyle] = useState('');
   const [animationStyle, setAnimationStyle] = useState('')
@@ -287,15 +287,18 @@ export const Productos = () => {
           
           {
 
-            alertText != '' ?
+            alertText != '' 
+            
+            ?
+
             <div className={  animationStyle }>
               <div className={ alertStyle } role="alert" hidden= {false} >
                 { alertText }
               </div>
             </div>
             
-
             :
+
             <div className='animate__animated animate__fadeOut'>
             <div className={ alertStyle } role="alert" hidden= {true} >
               { alertText }

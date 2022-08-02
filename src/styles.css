@@ -74,3 +74,8 @@ a{
     margin-right: 8%;
     font-weight: bolder;
 }
+
+.divDerecha{
+    float: right;
+    margin-right: 1%;
+}

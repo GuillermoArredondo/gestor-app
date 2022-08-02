@@ -1,61 +1,60 @@
 import React, { useEffect, useState } from 'react';
 import { getTotal, getTotalIva, getIva } from '../utils';
 
-export const TablaProductosNF = ( props ) => {
+export const TablaProductosNF = (props) => {
 
     useEffect(() => {
-      console.log('TablaProductos: ' , props.productos.length);
+        console.log('TablaProductos: ', props.productos.length);
     }, [])
-    
+
 
     const handleDeleteClick = (e) => {
-        const found = props.productos.find( prod => prod.id == e.target.id)
+        const found = props.productos.find(prod => prod.id == e.target.id)
         props.deleteProdTabla(found);
     }
 
-
-
+    
     return (
         <>
 
             <table className='table table-striped table-hover'>
                 <thead>
                     <tr>
-                        
-                        <th style={{width: 15 + '%'}}>Título</th>
-                        <th style={{width: 61 + '%'}}>Descripción</th>
-                        <th style={{width: 6 + '%'}}>Cantidad</th>
-                        <th style={{width: 6 + '%'}}>€/Unidad</th>
-                        <th style={{width: 6 + '%'}}>€/Total</th>
+
+                        <th style={{ width: 15 + '%' }}>Título</th>
+                        <th style={{ width: 61 + '%' }}>Descripción</th>
+                        <th style={{ width: 6 + '%' }}>Cantidad</th>
+                        <th style={{ width: 6 + '%' }}>€/Unidad</th>
+                        <th style={{ width: 6 + '%' }}>€/Total</th>
 
                         {/* <th style={{width: 5 + '%'}}></th> */}
-                        <th style={{width: 6 + '%'}}></th>
-                            
+                        <th style={{ width: 6 + '%' }}></th>
+
                     </tr>
                 </thead>
                 <tbody>
-                    
+
                     {
-                        props.productos && props.productos.map( producto => 
-                            
-                            <tr key={ producto.id }>
+                        props.productos && props.productos.map(producto =>
+
+                            <tr key={producto.id}>
                                 <td>
                                     {producto.titulo}
                                 </td>
-                                
-                                    {
-                                        producto.desc.length <= 100 ?
+
+                                {
+                                    producto.desc.length <= 100 ?
                                         <td>
-                                        {producto.desc}
+                                            {producto.desc}
                                         </td>
                                         :
                                         <td>
-                                        {producto.desc.substring(0,100) + ' ...'}
+                                            {producto.desc.substring(0, 100) + ' ...'}
                                         </td>
-                                    }
+                                }
 
-                                    
-                                
+
+
                                 <td>
                                     {producto.cantidad}
                                 </td>
@@ -71,8 +70,8 @@ export const TablaProductosNF = ( props ) => {
                                     </a>
                                 </td> */}
                                 <td>
-                                    <a onClick={ handleDeleteClick }>
-                                        <i id={ producto.id }  className="bi-x-circle-fill"></i>
+                                    <a onClick={handleDeleteClick}>
+                                        <i id={producto.id} className="bi-x-circle-fill"></i>
                                     </a>
                                 </td>
                             </tr>
@@ -82,7 +81,7 @@ export const TablaProductosNF = ( props ) => {
 
                 </tbody>
             </table>
-            
+
             {/* Total */}
             <div className='row'>
                 <div className='col-12'>
@@ -92,10 +91,35 @@ export const TablaProductosNF = ( props ) => {
             </div>
             {/* Iva */}
             <div className='row'>
-                <div className='col-12'>
+                {/* <div className='col-8' id='divAlertas'>
+
+                    {
+                        props.alertText != ''
+
+                            ?
+
+                            <div className={props.animationStyle}>
+                                <div className={props.alertStyle} role="alert" hidden={false} >
+                                    {props.alertText}
+                                </div>
+                            </div>
+
+                            :
+
+                            <div className='animate__animated animate__fadeOut'>
+                                <div className={props.alertStyle} role="alert" hidden={true} >
+                                    {props.alertText}
+                                </div>
+                            </div>
+                    }
+
+                </div> */}
+
+                <div className='col-12' id='alertas2'>
                     <p className='totalNFPrecio' >{getIva(props.productos)} €</p>
-                    <p className='totalNFLabel' >IVA 21%:</p>
+                    <p className='totalNFLabel' id='alertas3'>IVA 21%:</p>
                 </div>
+
             </div>
             {/* Total + Iva */}
             <div className='row'>

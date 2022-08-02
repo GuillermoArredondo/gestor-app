@@ -47,6 +47,28 @@ export const deleteProduct = async( id ) => {
 }
 
 
+const getFacturas = async() => {
+    const result = await getDocs(query(collection(db, 'facturas')));
+    return result;
+}
+
+export const getFacturasData = async ( setItems ) => {
+    const i = await getFacturas();
+    setItems(i.docs.map( (doc) => ({ 
+        cantidades: doc.data().cantidades,
+        desc: doc.data().desc,
+        titulo: doc.data().titulo,
+        fecha: doc.data().fecha,
+        iva: doc.data().iva,
+        productos: doc.data().productos,
+        titulo: doc.data().titulo,
+        total: doc.data().total,
+        totalIva: doc.data().totalIva,
+        id: doc.id
+      })))
+}
+
+
 export const addFactura = ( factura ) => {
     addDoc(collection(db, 'facturas'), { 
         titulo: factura.titulo,
@@ -59,7 +81,6 @@ export const addFactura = ( factura ) => {
         cantidades: factura.cantidades
     });
 }
-
 
 
 

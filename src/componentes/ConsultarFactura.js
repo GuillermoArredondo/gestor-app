@@ -19,7 +19,10 @@ registerLocale("es", es);
 
 
 
-export const NuevaFactura = () => {
+export const ConsultarFactura = () => {
+
+  //state para la factura que consultar
+  let facturaConsulta;
 
   //Variable para checkear el boton de guardar
   let numTabla = 0;
@@ -69,24 +72,6 @@ export const NuevaFactura = () => {
   const [alertStyle, setAlerStyle] = useState('');
   const [animationStyle, setAnimationStyle] = useState('')
 
-  const eliminarAlerta = () => {
-    setTimeout( () => {
-      setAnimationStyle('animate__animated animate__fadeOut');
-      setTimeout( () => {
-        darFormatoDiv();     
-      }, 200);    
-    }, 5000);
-  }
-
-  const darFormatoDiv = () => {
-    const e = document.getElementById('divAlertas');
-    e.remove();
-    const e2 = document.getElementById('alertas2');
-    e2.style.marginLeft = '810px';
-    const e3 = document.getElementById('alertas3');
-    e2.style.marginRight = '23px';
-  }
-
   
   const middleTitulo = (e) => {
     checkDisabled();
@@ -135,6 +120,7 @@ export const NuevaFactura = () => {
   }
 
   useEffect(() => {
+    //facturaConsulta = getFactura();
     getProductosData(setProductos);
   }, [])
 
@@ -219,10 +205,6 @@ export const NuevaFactura = () => {
     setShowGuardar(false);
 
     setShowElegir(true);
-    // setAnimationStyle('animate__animated animate__fadeIn'); 
-    // setAlertText('Factura guardada correctamente');
-    // setAlerStyle('alert alert-success');
-    // eliminarAlerta();
   }
 
   const getFechaFormat = () => {
@@ -256,7 +238,7 @@ export const NuevaFactura = () => {
     <>
       <br></br>
       <br></br>
-      <h4>Nueva Factura</h4>
+      <h4>Consultar Factura</h4>
       <hr></hr>
 
       {/* Titulo, fecha  y descripcion de la factura */}
