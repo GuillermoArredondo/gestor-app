@@ -24,6 +24,10 @@ const getTotalIva = (productos) => {
     return getTotal(productos) + getIva(productos);
 }
 
+const getListaProductos = (listaIds) => {
+    
+}
+
 
 module.exports = { 
     getTotalPaginas: getTotalPaginas,

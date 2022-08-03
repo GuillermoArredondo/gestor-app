@@ -5,7 +5,7 @@ import Form from 'react-bootstrap/Form';
 import { useForm } from '../Hooks/useForm';
 import { useFormDate } from '../Hooks/useFormDate';
 import { useFormInput } from '../Hooks/useFormInput';
-import { addFactura } from '../firebase/fb_utils'
+import { addFactura, getFactura } from '../firebase/fb_utils'
 import React, { useEffect, useState } from 'react'
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css'
@@ -22,7 +22,7 @@ registerLocale("es", es);
 export const ConsultarFactura = () => {
 
   //state para la factura que consultar
-  let facturaConsulta;
+  const [facturaConsulta, setFacturaConsulta] = useState({});
 
   //Variable para checkear el boton de guardar
   let numTabla = 0;
@@ -72,6 +72,14 @@ export const ConsultarFactura = () => {
   const [alertStyle, setAlerStyle] = useState('');
   const [animationStyle, setAnimationStyle] = useState('')
 
+  //getProductosData(setProductos);
+  useEffect(() => {
+    getProductosData(setProductos);
+    getFactura(localStorage.getItem('factura'), setFacturaConsulta, setInFields);
+  }, [])
+
+  console.log(productos.length);
+
   
   const middleTitulo = (e) => {
     checkDisabled();
@@ -119,10 +127,67 @@ export const ConsultarFactura = () => {
     setBtnDisabled(true);
   }
 
-  useEffect(() => {
-    //facturaConsulta = getFactura();
-    getProductosData(setProductos);
-  }, [])
+  //Metodo para setear los datos de la factura
+  const setInFields = ( factura ) => {
+    tituloChanges(document.getElementsByName('tituloValue')[0], factura.titulo);
+    descChanges(document.getElementsByName('descValue')[0], factura.desc);
+    fechaChanges(document.getElementsByName('fechaValue')[0], getNuevaFechaFormat(factura.fecha));
+    setProductosTabla(selectProds(factura.productos, factura.cantidades, productos));  
+  }
+
+  const selectProds = (listaIds, listaCantidades, productos) => {
+    const productosFromFactura = [];
+
+    for (let index = 0; index < listaIds.length; index++) {
+      let found = productos.find(prod => prod.id == listaIds[index]);
+      if(found != undefined)
+      {
+        const precioTotal = listaCantidades[index] * found.precio;
+        const newProd = {
+          id: found.id,
+          titulo: found.titulo,
+          desc: found.desc,
+          cantidad: listaCantidades[index],
+          precio: found.precio,
+          precioTotal: precioTotal
+        };
+      productosFromFactura.push(newProd);
+      }
+    }
+    if (productosFromFactura.length == 0){
+      console.log('está vacío');
+    }
+    return productosFromFactura;
+  } 
+
+
+  const getNuevaFechaFormat = ( fecha ) => {
+    const newFecha = new Date();
+
+    if (fecha.substring(0,1) == '0')
+    {
+      newFecha.setDate(fecha.substring(1,2));
+    }else
+    {
+      newFecha.setDate(fecha.substring(0,2));
+    }
+
+    if (fecha.substring(3,4) == '0')
+    {
+      let month = parseInt(fecha.substring(4,5));
+      month--
+      newFecha.setMonth(month);
+    }else
+    {
+      let month = parseInt(fecha.substring(3,5));
+      month--
+      newFecha.setMonth(month);
+    }
+
+    newFecha.setFullYear(fecha.substring(6,10));
+    return newFecha;
+
+  }
 
 
   //Añadir producto a la tabla
@@ -166,6 +231,25 @@ export const ConsultarFactura = () => {
     });
     return ok;
   }
+
+  //Añadir producto a la tabla que viene de la factura
+  // const aniadirDesdeFactura = (id, cantidad) => {
+  //   console.log('aniadir: ', id,cantidad);
+  //   let found = productos.find(prod => prod.id == id);
+  //   console.log('found: ', found);
+  //   const precioTotal = cantidad * found.precio;
+  //   const newProd = [...productosTabla, {
+  //     id: found.id,
+  //     titulo: found.titulo,
+  //     desc: found.desc,
+  //     cantidad: cantidad,
+  //     precio: found.precio,
+  //     precioTotal: precioTotal
+  //   }];
+  //   setProductosTabla(prevProductos => ([...newProd]));
+  //   numTabla++;
+
+  // }
 
   //Eliminar un producto de la tabla
   const deleteProdTabla = (found) => {

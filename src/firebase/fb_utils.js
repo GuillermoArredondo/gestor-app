@@ -1,4 +1,4 @@
-import { collection, getDocs,  query, addDoc, updateDoc, doc, deleteDoc} from 'firebase/firestore';
+import { collection, getDocs,  query, addDoc, updateDoc, doc, deleteDoc, getDoc} from 'firebase/firestore';
 import { db } from './firebase';
 
 
@@ -9,7 +9,7 @@ const getProductos = async() => {
 
 export const getProductosData = async ( setItems ) => {
     const i = await getProductos();
-    //console.log(i.docs[0].data());
+    //console.log('productos: ', i.docs[0].data());
     setItems(i.docs.map( (doc) => ({ 
         titulo: doc.data().titulo,
         desc: doc.data().desc,
@@ -80,6 +80,32 @@ export const addFactura = ( factura ) => {
         productos: factura.productos,
         cantidades: factura.cantidades
     });
+}
+
+export const getFactura = async( idFactura, setItem, setInFields ) => {
+    const docRef = doc(db, 'facturas', idFactura);
+    const docSnap = await getDoc(docRef);
+    let factura;
+    if (docSnap.exists()) {
+        factura = {
+            titulo: docSnap.data().titulo,
+            desc: docSnap.data().desc,
+            fecha: docSnap.data().fecha,
+            total: docSnap.data().total,
+            iva: docSnap.data().iva,
+            totalIva: docSnap.data().totalIva,
+            productos: docSnap.data().productos,
+            cantidades: docSnap.data().cantidades,
+            id: docSnap.id
+        }
+        console.log('getFactura: ', factura)
+        setItem(prevfactura => ({...factura}));
+
+        setInFields( factura );
+
+      } else {
+        console.log("No such document!");
+      }
 }
 
 

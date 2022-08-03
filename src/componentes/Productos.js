@@ -44,7 +44,7 @@ export const Productos = () => {
   useEffect(() => {
     getProductosData(setProductos);
     localStorage.setItem('numProd', productos.length.toString());
-    console.log('USE EFFECT');
+    console.log('USE EFFECT: ',productos.length);
   }, [])
 
   console.log(productos);

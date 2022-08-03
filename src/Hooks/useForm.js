@@ -22,7 +22,7 @@ export const useForm = ( initialState = {} )=> {
     }
 
     const inputChanges = ( input, targetValue  ) =>{
-        console.log('CHANGES: ',input.name, targetValue);
+        //console.log('CHANGES: ',input.name, targetValue);
         setValues({ [ input.name ]: targetValue })
     }
 
