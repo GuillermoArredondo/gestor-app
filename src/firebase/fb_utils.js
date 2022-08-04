@@ -18,6 +18,30 @@ export const getProductosData = async ( setItems ) => {
       })))
 }
 
+export const getProductosData2 = async () => {
+    const i = await getProductos();
+    const productos = [];
+    //console.log('productos: ', i.docs[0].data());
+    // setItems(i.docs.map((doc) => ({
+    //     titulo: doc.data().titulo,
+    //     desc: doc.data().desc,
+    //     precio: doc.data().precio,
+    //     id: doc.id
+    // })))
+
+    i.forEach(producto => {
+        let p = {
+            titulo: producto.data().titulo,
+            desc: producto.data().desc,
+            precio: producto.data().precio,
+            id: producto.id
+        }
+        productos.push(p);
+    });
+
+    return productos;
+}
+
 
 export const addProducto = ( producto ) => {
     const newID = localStorage.getItem('numProd');
@@ -102,6 +126,32 @@ export const getFactura = async( idFactura, setItem, setInFields ) => {
         setItem(prevfactura => ({...factura}));
 
         setInFields( factura );
+
+      } else {
+        console.log("No such document!");
+      }
+}
+
+
+export const getFactura2 = async( idFactura ) => {
+    const docRef = doc(db, 'facturas', idFactura);
+    const docSnap = await getDoc(docRef);
+    let factura;
+    if (docSnap.exists()) {
+        factura = {
+            titulo: docSnap.data().titulo,
+            desc: docSnap.data().desc,
+            fecha: docSnap.data().fecha,
+            total: docSnap.data().total,
+            iva: docSnap.data().iva,
+            totalIva: docSnap.data().totalIva,
+            productos: docSnap.data().productos,
+            cantidades: docSnap.data().cantidades,
+            id: docSnap.id
+        }
+        console.log('getFactura: ', factura)
+        
+        return factura;
 
       } else {
         console.log("No such document!");

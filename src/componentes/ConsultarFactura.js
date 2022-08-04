@@ -3,9 +3,10 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Form from 'react-bootstrap/Form';
 import { useForm } from '../Hooks/useForm';
+import { useFormArray } from '../Hooks/useFormArray';
 import { useFormDate } from '../Hooks/useFormDate';
 import { useFormInput } from '../Hooks/useFormInput';
-import { addFactura, getFactura } from '../firebase/fb_utils'
+import { addFactura, getFactura, getProductosData2 } from '../firebase/fb_utils'
 import React, { useEffect, useState } from 'react'
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css'
@@ -20,6 +21,8 @@ registerLocale("es", es);
 
 
 export const ConsultarFactura = () => {
+
+  let prodAux = [];
 
   //state para la factura que consultar
   const [facturaConsulta, setFacturaConsulta] = useState({});
@@ -73,8 +76,9 @@ export const ConsultarFactura = () => {
   const [animationStyle, setAnimationStyle] = useState('')
 
   //getProductosData(setProductos);
-  useEffect(() => {
+  useEffect(async () => {
     getProductosData(setProductos);
+    prodAux = await getProductosData2();
     getFactura(localStorage.getItem('factura'), setFacturaConsulta, setInFields);
   }, [])
 
@@ -132,14 +136,14 @@ export const ConsultarFactura = () => {
     tituloChanges(document.getElementsByName('tituloValue')[0], factura.titulo);
     descChanges(document.getElementsByName('descValue')[0], factura.desc);
     fechaChanges(document.getElementsByName('fechaValue')[0], getNuevaFechaFormat(factura.fecha));
-    setProductosTabla(selectProds(factura.productos, factura.cantidades, productos));  
+    setProductosTabla(selectProds(factura.productos, factura.cantidades));  
   }
 
-  const selectProds = (listaIds, listaCantidades, productos) => {
+  const selectProds = (listaIds, listaCantidades) => {
     const productosFromFactura = [];
 
     for (let index = 0; index < listaIds.length; index++) {
-      let found = productos.find(prod => prod.id == listaIds[index]);
+      let found = prodAux.find(prod => prod.id == listaIds[index]);
       if(found != undefined)
       {
         const precioTotal = listaCantidades[index] * found.precio;

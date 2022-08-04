@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getTotal, getTotalIva, getIva } from '../utils';
 import { useNavigate } from 'react-router-dom';
+import { getFactura2 } from '../firebase/fb_utils';
 
 export const TablaFacturas = (props) => {
 
@@ -9,7 +10,9 @@ export const TablaFacturas = (props) => {
     }, [])
 
 
-    const handleConsultaClick = (e) => {
+    const handleConsultaClick = async (e) => {
+        //const factura = await getFactura2(e.target.id)
+        //console.log('handleConsultaClick', factura.titulo);
         localStorage.setItem('factura', e.target.id);
         navigate('/ConsultarFactura', {
             replace: true
