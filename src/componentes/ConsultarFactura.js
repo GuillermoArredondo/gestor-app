@@ -6,7 +6,7 @@ import { useForm } from '../Hooks/useForm';
 import { useFormArray } from '../Hooks/useFormArray';
 import { useFormDate } from '../Hooks/useFormDate';
 import { useFormInput } from '../Hooks/useFormInput';
-import { addFactura, getFactura, getProductosData2 } from '../firebase/fb_utils'
+import { addFactura, getFactura, getProductosData2, updateFactura } from '../firebase/fb_utils'
 import React, { useEffect, useState } from 'react'
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css'
@@ -15,6 +15,8 @@ import { getProductosData } from '../firebase/fb_utils'
 import { TablaProductosNF } from './TablaProductosNF';
 import { CompModal } from '../ui/Modal';
 import { getTotal, getTotalIva, getIva } from '../utils';
+import { generarWord } from '../utilsDocx';
+import { useNavigate } from 'react-router-dom';
 registerLocale("es", es);
 
 
@@ -23,6 +25,11 @@ registerLocale("es", es);
 export const ConsultarFactura = () => {
 
   let prodAux = [];
+
+  const navigate = useNavigate();
+
+  //UseState para poner disbaled los buttons
+  const [modoEdit, setmModoEdit] = useState(true);
 
   //state para la factura que consultar
   const [facturaConsulta, setFacturaConsulta] = useState({});
@@ -76,13 +83,17 @@ export const ConsultarFactura = () => {
   const [animationStyle, setAnimationStyle] = useState('')
 
   //getProductosData(setProductos);
-  useEffect(async () => {
+  useEffect(() => {
+    
+    llamarMetodos();
+
+  }, [])
+
+  const llamarMetodos = async() => {
     getProductosData(setProductos);
     prodAux = await getProductosData2();
     getFactura(localStorage.getItem('factura'), setFacturaConsulta, setInFields);
-  }, [])
-
-  console.log(productos.length);
+  }
 
   
   const middleTitulo = (e) => {
@@ -115,7 +126,7 @@ export const ConsultarFactura = () => {
 
 
   const checkDisabled = () => {
-    if ((descValue.length > 1) && (tituloValue.length > 1) && (numTabla >= 1))
+    if ((descValue.length > 1) && (tituloValue.length > 1))
       setBtnDisabled(false);
     else
       setBtnDisabled(true);
@@ -272,11 +283,12 @@ export const ConsultarFactura = () => {
   }
 
   const handleConsultarFactura = () => {
-    
+    setShowElegir(false);
+    setmModoEdit(true);
   }
 
-  //Guardar Nueva Factura
-  const handleGuardarFactura = () => {
+  //Editar Nueva Factura
+  const handleEditarFacturaNext = () => {
     
     const nuevaFactura = {
         titulo: tituloValue,
@@ -286,10 +298,13 @@ export const ConsultarFactura = () => {
         iva: getIva(productosTabla),
         totalIva: getTotalIva(productosTabla),
         productos: getIdsProductos(),
-        cantidades: getCantidades()
+        cantidades: getCantidades(),
+        id: localStorage.getItem('factura')
     }
 
-    addFactura(nuevaFactura);
+    //addFactura(nuevaFactura);
+    setFacturaConsulta(prevProductos => ({...nuevaFactura}));
+    updateFactura(nuevaFactura);
     setShowGuardar(false);
 
     setShowElegir(true);
@@ -316,9 +331,19 @@ export const ConsultarFactura = () => {
     return cantidades;
   }
 
-  const handleInputGuardar = (e) => {
+  const handleInputEditar = (e) => {
     e.preventDefault();
     setShowGuardar(true);
+  }
+
+  const handleEditarFactura = () => {
+    setmModoEdit(false);
+    setBtnDisabled(false);
+  }
+
+  const handleGenerarWord = () => {
+    console.log('productosTabla: ', productosTabla);
+    generarWord(facturaConsulta, productosTabla);
   }
 
 
@@ -326,7 +351,33 @@ export const ConsultarFactura = () => {
     <>
       <br></br>
       <br></br>
-      <h4>Consultar Factura</h4>
+      <div className='container'>
+        <div className='row'>
+          <div className='col-8'>
+            <h4>Consultar factura</h4>
+          </div>
+          <div className='col-4 '>
+            <div style={{float: 'right'}}>
+              <button
+                className='btn btn-primary'
+                onClick={handleEditarFactura}
+                type='submit'
+                style={{marginRight: '8px'}}
+              >Editar factura</button>
+              <button
+                className='btn btn-primary'
+                onClick={handleGenerarWord}
+                type='submit'
+              >Generar Word</button>
+            </div>
+            
+          </div>
+          {/* <div className='col-2'>
+            
+          </div> */}
+        </div>
+      </div>
+      
       <hr></hr>
 
       {/* Titulo, fecha  y descripcion de la factura */}
@@ -341,6 +392,7 @@ export const ConsultarFactura = () => {
               name='tituloValue'
               onChange={middleTitulo}
               value={tituloValue}
+              disabled={modoEdit}
             ></input>
           </div>
           <div className='col-4'>
@@ -354,6 +406,7 @@ export const ConsultarFactura = () => {
               value={fechaValue}
               selected={fechaValue}
               locale="es"
+              disabled={modoEdit}
             ></DatePicker>
           </div>
 
@@ -362,9 +415,9 @@ export const ConsultarFactura = () => {
             <button
               className='btn btn-outline-primary'
               disabled={btnDisabled}
-              onClick={handleInputGuardar}
+              onClick={handleInputEditar}
               type='submit'
-            >Guardar</button>
+            >Editar</button>
           </div>
 
 
@@ -388,6 +441,7 @@ export const ConsultarFactura = () => {
               name='descValue'
               onChange={middleDesc}
               value={descValue}
+              disabled={modoEdit}
             ></textarea>
           </div>
         </div>
@@ -402,6 +456,7 @@ export const ConsultarFactura = () => {
                 variant="outline-secondary"
                 title="Productos "
                 id="input-group-dropdown-1"
+                disabled={modoEdit}
               >
                 {
                   productos && productos.map( producto => 
@@ -438,6 +493,7 @@ export const ConsultarFactura = () => {
               name='cantidadValue'
               onChange={middleCantidad}
               value={cantidadValue}
+              disabled={modoEdit}
             ></input>
           </div>
 
@@ -459,6 +515,7 @@ export const ConsultarFactura = () => {
           alertText={alertText}
           animationStyle={animationStyle}
           alertStyle={alertStyle}
+          modoEdit={modoEdit}
           >
         </TablaProductosNF>
 
@@ -468,12 +525,12 @@ export const ConsultarFactura = () => {
       <CompModal
                 show={ showGuardar }
                 handleClose={ handleCloseGuardar }
-                btnAceptar={ handleGuardarFactura }
-                btnText={ 'Guardar' }
+                btnAceptar={ handleEditarFacturaNext }
+                btnText={ 'Editar' }
                 style={ 'primary' }
                 name='ModalGuardar'
-                titulo='Guardar factura'
-                desc='¿Estás seguro que deseas guardar esta factura?'
+                titulo='Editar factura'
+                desc='¿Estás seguro que deseas editar esta factura?'
                 alert={false}
         ></CompModal>
 
@@ -486,7 +543,7 @@ export const ConsultarFactura = () => {
                 style={ 'primary' }
                 name='ModalGuardar'
                 titulo='Elegir acción'
-                desc='La factura se guardo correctamente'
+                desc='La factura se editó correctamente'
                 alert={true}
         ></CompModal>
 

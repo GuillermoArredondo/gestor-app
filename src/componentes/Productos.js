@@ -148,7 +148,9 @@ export const Productos = () => {
 
   const middlePrecio = (e) => {
     checkDisabled();
-    handleInputChangePrecio(e);
+    if (e.target.value >= 0) {
+      handleInputChangePrecio(e);
+    }
   }
 
   const checkDisabled = () => {

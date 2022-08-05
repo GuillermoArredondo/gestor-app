@@ -70,9 +70,16 @@ export const TablaProductosNF = (props) => {
                                     </a>
                                 </td> */}
                                 <td>
-                                    <a onClick={handleDeleteClick}>
-                                        <i id={producto.id} className="bi-x-circle-fill"></i>
-                                    </a>
+                                    {
+                                        !props.modoEdit
+                                        ?
+                                        <a onClick={handleDeleteClick}>
+                                            <i id={producto.id} className="bi-x-circle-fill"></i>
+                                        </a>
+                                        :
+                                        <></>
+                                    }
+                                    
                                 </td>
                             </tr>
 

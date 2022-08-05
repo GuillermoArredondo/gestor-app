@@ -158,5 +158,10 @@ export const getFactura2 = async( idFactura ) => {
       }
 }
 
+export const updateFactura = async( factura ) => {
+    console.log()
+    await updateDoc(doc(db, 'facturas', factura.id),  factura );
+}
+
 
 

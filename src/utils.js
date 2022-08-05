@@ -1,5 +1,3 @@
-
-
 const ITEMS_POR_PAGINA = 7
 
 //Metodo para calcular el numero total de paginas a partir de los items
@@ -22,10 +20,6 @@ const getIva = (productos) => {
 
 const getTotalIva = (productos) => {
     return getTotal(productos) + getIva(productos);
-}
-
-const getListaProductos = (listaIds) => {
-    
 }
 
 
