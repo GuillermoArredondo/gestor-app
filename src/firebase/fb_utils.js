@@ -43,6 +43,22 @@ export const getProductosData2 = async () => {
 }
 
 
+const getTipProductos = async() => {
+    const result = await getDocs(query(collection(db, 'tipoProductos')));
+    return result;
+}
+
+export const getTipProductosData = async ( setItems ) => {
+    const i = await getTipProductos();
+    //console.log('productos: ', i.docs[0].data());
+    setItems(i.docs.map( (doc) => ({ 
+        titulo: doc.data().titulo,
+        prods: doc.data().prods,
+        id: doc.id
+      })))
+}
+
+
 export const addProducto = ( producto ) => {
     const newID = localStorage.getItem('numProd');
     addDoc(collection(db, 'prodcuts'), { 
@@ -50,6 +66,14 @@ export const addProducto = ( producto ) => {
         desc: producto.desc,
         precio: producto.precio,
         id: newID
+    });
+}
+
+
+export const addTipoProducto = ( tipoProd ) => {
+    //const newID = localStorage.getItem('numProd');
+    addDoc(collection(db, 'tipoProductos'), { 
+        titulo: tipoProd.titulo
     });
 }
 

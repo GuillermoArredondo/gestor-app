@@ -36,8 +36,12 @@ a{
     height: 5vh;
 }
 
+.sec-tipos{
+    height: 3vh;
+}
+
 .sec-tabla-productos{
-    height: 60vh;
+    height: 48vh;
 }
 
 .sec-dos{

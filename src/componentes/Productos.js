@@ -1,21 +1,36 @@
 import React, { useEffect, useState } from 'react'
-import { getProductosData, addProducto, updateProduct, deleteProduct } from '../firebase/fb_utils'
+import { getProductosData, addProducto, updateProduct, deleteProduct, getTipProductosData, addTipoProducto } from '../firebase/fb_utils'
 import { TablaProductos } from './TablaProductos';
 import Paginacion from '../ui/paginacion';
 import { getTotalPaginas, ITEMS_POR_PAGINA } from '../utils';
 import { useForm } from '../Hooks/useForm';
 import { CompModal } from '../ui/Modal';
+import Dropdown from 'react-bootstrap/Dropdown';
+import DropdownButton from 'react-bootstrap/DropdownButton';
+import InputGroup from 'react-bootstrap/InputGroup';
+import { useFormInput } from '../Hooks/useFormInput';
+import Form from 'react-bootstrap/Form';
 
 
 export const Productos = () => {
 
   //Lista productos
   const [productos, setProductos] = useState([]);
+
+  //Lista de productos que no se muta
+  const [productosFijos, setProductosFijos] = useState([]);
+
+  //Lista tipo productos
+  const [tipProductos, setTipProductos] = useState([]);
+
   //UseStates de las paginas
   const [paginaActual, setPaginaActual] = useState(1)
 
   //UseState para poner disbaled los buttons
   const [btnDisabled, setBtnDisabled] = useState(true);
+
+   //UseState para poner disbaled el button del tipo Guardar
+   const [btnTipoDisabled, setBtnTipoDisabled] = useState(true);
 
   //UseStates de los inputs
   const [{ tituloValue }, handleInputChangeTitulo, tituloChanges, reset1] = useForm({
@@ -28,6 +43,10 @@ export const Productos = () => {
     precioValue: ''
   });
 
+  const [{ tipoValue }, handleInputChangeTipo, tipoChanges, reset5] = useForm({
+    tipoValue: ''
+  });
+
   //UseState para el boton Guardar/Editar
   const [isSave, setIsSave] = useState(true);
 
@@ -35,19 +54,30 @@ export const Productos = () => {
   const [showEditar, setShowEditar] = useState(false);
   const handleCloseEditar = () => setShowEditar(false);
 
+  const [showGuardarTipo, setShowGuardarTipo] = useState(false);
+  const handleCloseGuardarTipo = () => setShowGuardarTipo(false);
+
   //States para las alertas
   const [alertText, setAlertText] = useState('');
   const [alertStyle, setAlerStyle] = useState('');
   const [animationStyle, setAnimationStyle] = useState('')
 
 
+  //UseState para el input de al lado del Dropdown de los tipos de prod
+  const [{ prodSelected }, handleInputChangeProd, prodChanges, reset4] = useFormInput({
+    prodSelected: ''
+  });
+
+
   useEffect(() => {
     getProductosData(setProductos);
+    getProductosData(setProductosFijos);
+    getTipProductosData(setTipProductos);
     localStorage.setItem('numProd', productos.length.toString());
-    console.log('USE EFFECT: ',productos.length);
+    //console.log('USE EFFECT: ',productos.length);
   }, [])
 
-  console.log(productos);
+  //console.log(productos);
 
 
   //Variable que da los productos por pagina
@@ -75,6 +105,7 @@ export const Productos = () => {
     localStorage.setItem('numProd', (productos.length + 1).toString());
     addProducto(newProd);
     getProductosData(setProductos);
+    getProductosData(setProductosFijos);
     setAlertText('Producto añadido correctamente');
     setAlerStyle('alert alert-success');
     eliminarAlerta();
@@ -94,6 +125,24 @@ export const Productos = () => {
   }
 
 
+  const handleInputGuardarTipo = () => {
+    setShowGuardarTipo(true);
+  }
+
+
+  const handleGuardarTipo = () => {
+    setAnimationStyle('animate__animated animate__fadeIn'); 
+    const tipoProd = { titulo: tipoValue };
+    addTipoProducto(tipoProd);
+    setShowGuardarTipo(false);
+    setAlertText('Tipo de producto añadido correctamente');
+    setAlerStyle('alert alert-primary');
+    eliminarAlerta();
+    reset5();
+    getTipProductosData(setTipProductos);
+  }
+
+
   const handleEditarProd = () => {
     setAnimationStyle('animate__animated animate__fadeIn'); 
     const id = localStorage.getItem('edit');
@@ -108,6 +157,7 @@ export const Productos = () => {
     reset();
     handleCloseEditar();
     getProductosData(setProductos);
+    getProductosData(setProductosFijos);
     setAlertText('Producto editado correctamente');
     setAlerStyle('alert alert-primary');
     eliminarAlerta();
@@ -121,6 +171,7 @@ export const Productos = () => {
     reset();
     handleCloseBorrar();
     getProductosData(setProductos);
+    getProductosData(setProductosFijos);
     setAlertText('Producto eliminado correctamente');
     setAlerStyle('alert alert-warning');
     eliminarAlerta();
@@ -153,16 +204,34 @@ export const Productos = () => {
     }
   }
 
-  const checkDisabled = () => {
+  const middleTipo = (e) => {
+    handleInputChangeTipo(e);
+    checkDisabled(e.target.value);
+  }
 
-    console.log(btnDisabled);
+  const checkDisabled = (e) => {
 
-    if ((descValue.length > 1) && (tituloValue.length > 1))
+    //console.log(btnDisabled);
+
+    if ((descValue.length > 1) && (tituloValue.length > 1)){
+      
       setBtnDisabled(false);
-    else
+    }
+    else{
+      
       setBtnDisabled(true);
+    }
 
-    console.log(btnDisabled);
+    if (e != undefined) {
+      if (e.length  >= 1)
+        setBtnTipoDisabled(false);
+      else
+        setBtnTipoDisabled(true);
+    }
+    
+
+
+    //console.log(btnDisabled);
 
 
   }
@@ -183,9 +252,104 @@ export const Productos = () => {
     precioChanges(document.getElementsByName('precioValue')[0], producto.precio);
   }
 
+  const middleProd = async (e) => {
+    document.getElementById('prodSelected').value = e.target.name;
+    actualizarTabla(e.target.id);
+  }
+
+  const getListaIdsProds = () => {
+    const listaIds = [];
+    productosFijos.forEach(prod => {
+      listaIds.push(prod.id);
+    });
+    return listaIds;
+  }
+
+  const actualizarTabla = (idTipo) => {
+    const listaIds = getListaIdsProds();
+    const found = tipProductos.find(prod => prod.id == idTipo);
+    const prodsDelTipo = [];
+    console.log('found: ', found);
+    console.log('listaIds: ', listaIds);
+    found.prods.forEach(id => {
+      if (listaIds.includes(id)){
+          const foundProd = productosFijos.find(prod => prod.id == id);
+          prodsDelTipo.push(foundProd);
+      }
+    });
+
+    console.log('prodsDelTipo: ', prodsDelTipo);
+    setProductos(prodsDelTipo);
+  }
+
 
   return (
     <>
+      <br></br>
+
+      <div className='container'>
+        <div className='row'>
+
+          <div className='col-7'>
+            <div className='sec-tipos'>
+              <InputGroup className="mb-3">
+                <DropdownButton
+                  variant="outline-secondary"
+                  title="Tipo de productos "
+                  id="input-group-dropdown-1"
+                  disabled={false}
+                >
+                  {
+                    tipProductos && tipProductos.map(tipo =>
+
+                      <Dropdown.Item name={tipo.titulo} id={tipo.id} onClick={middleProd}>
+                        <a id={tipo.id} name={tipo.titulo} style={{ color: 'black' }}>{tipo.titulo}</a>
+                      </Dropdown.Item>
+
+                    )
+                  }
+
+                </DropdownButton>
+                <Form.Control
+                  disabled aria-label="Text input with dropdown button"
+                  id='prodSelected'
+                />
+              </InputGroup>
+            </div>
+          </div>
+            
+          <div className='col-4'>
+
+            <div style={{ float: 'right' }}>
+              <input
+                className='form-control'
+                placeholder='Tipo de producto'
+                type='text'
+                name='tipoValue'
+                onChange={middleTipo}
+                value={tipoValue}
+              ></input>
+
+            </div>
+
+            
+          </div>
+
+          <div className='col-1'>
+          <div style={{ float: 'right' }}>
+            <button
+                  className='btn btn-outline-primary'
+                  disabled={btnTipoDisabled}
+                  onClick={handleInputGuardarTipo}
+                  type='submit'
+                >Guardar</button>
+          </div>
+
+          </div>
+
+        </div>
+      </div>
+
 
       <div className='sec-uno'>
         {/* <br></br>
@@ -335,6 +499,18 @@ export const Productos = () => {
         titulo='Editar producto'
         desc='¿Estás seguro que deseas modificar este producto?'
       ></CompModal>
+
+      <CompModal
+        show={showGuardarTipo}
+        handleClose={handleCloseGuardarTipo}
+        btnAceptar={handleGuardarTipo}
+        btnText={'Guardar tipo de producto'}
+        style={'primary'}
+        name='ModalGuardarTipo'
+        titulo='Guardar tipo'
+        desc={ `¿Estás seguro que deseas guardar el tipo de producto: "${tipoValue}" ?` }
+      ></CompModal>
+
     </>
   )
 }
