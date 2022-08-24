@@ -49,9 +49,16 @@ export const TablaFacturas = (props) => {
                                 <td>
                                     {factura.fecha}
                                 </td>
-                                <td>
-                                    {factura.titulo}
-                                </td>
+                                {
+                                    factura.titulo.length <= 15 ?
+                                        <td>
+                                            {factura.titulo}
+                                        </td>
+                                        :
+                                        <td>
+                                            {factura.titulo.substring(0, 15) + ' ...'}
+                                        </td>
+                                }
                                 {
                                     factura.desc.length <= 80 ?
                                         <td>

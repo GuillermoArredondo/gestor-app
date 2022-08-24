@@ -11,15 +11,18 @@ const getTotal = (productos) => {
     productos && productos.map( producto => 
         total = total + (producto.precio * producto.cantidad)
     )
-    return total;
+    return total.toFixed(2);
 }
 
 const getIva = (productos) => {
-    return getTotal(productos) * 0.21;
+    const iva = getTotal(productos) * 0.21;
+    return iva.toFixed(2);
 }
 
 const getTotalIva = (productos) => {
-    return getTotal(productos) + getIva(productos);
+    console.log(getTotal(productos) , getIva(productos))
+    const totalIva = parseInt(getTotal(productos)) + parseInt(getIva(productos));
+    return totalIva.toFixed(2);
 }
 
 

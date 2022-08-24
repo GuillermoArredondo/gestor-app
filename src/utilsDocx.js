@@ -15,7 +15,7 @@ export const generarWord = (factura, listaProductos) => {
     });
 
     Packer.toBlob(doc).then( blob => {
-        saveAs(blob, 'prueba.docx');
+        saveAs(blob, 'Factura ' + factura.fecha);
     })
 }
 
@@ -165,7 +165,6 @@ const montarArray = (factura, listaProductos) => {
 
         const p2 = new Paragraph({
             alignment: AlignmentType.LEFT,
-            thematicBreak: true,
             children:[
                 new TextRun({
                     text: prod.cantidad + ' \t\t\t\t\t\t ',
@@ -182,6 +181,16 @@ const montarArray = (factura, listaProductos) => {
             ]
         })
         parrafos.push(p2);
+        const vacio = new Paragraph({
+            alignment: AlignmentType.LEFT,
+            children:[
+                new TextRun({
+                    text: '',
+                    size: 24,
+                }),
+            ]
+        })
+        parrafos.push(vacio);
     });
 
     const vacio = new Paragraph({
