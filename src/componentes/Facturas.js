@@ -41,15 +41,25 @@ export const Facturas = () => {
       <br></br>
       <br></br>
       <div className='row'>
-        <div className='col-10'>
+        <div className='col-7'>
           <h4>Facturas</h4>
+        </div>
+        <div className='col-3 float-right'>
+          <div style={{ float: 'right' }}>
+            <button
+              className='btn btn-outline-primary'
+              onClick={handleNuevaFactura}
+              type='submit'
+            >Nueva Factura (Estancias)</button>
+          </div>
+          
         </div>
         <div className='col-2 float-right'>
           <button
             className='btn btn-outline-primary'
             onClick={handleNuevaFactura}
             type='submit'
-          >Nueva Factura</button>
+          >Nueva Factura (Normal)</button>
         </div>
       </div>
 
