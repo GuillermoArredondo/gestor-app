@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { getProductosData, addProducto, updateProduct, deleteProduct, getTipProductosData, addTipoProducto } from '../firebase/fb_utils'
+import { getProductosData, addProducto, updateProduct, deleteProduct, getTipProductosData, addTipoProducto, updateTipoProducto, deleteTipo } from '../firebase/fb_utils'
 import { TablaProductos } from './TablaProductos';
 import Paginacion from '../ui/paginacion';
 import { getTotalPaginas, ITEMS_POR_PAGINA } from '../utils';
@@ -29,8 +29,11 @@ export const Productos = () => {
   //UseState para poner disbaled los buttons
   const [btnDisabled, setBtnDisabled] = useState(true);
 
-   //UseState para poner disbaled el button del tipo Guardar
-   const [btnTipoDisabled, setBtnTipoDisabled] = useState(true);
+  //UseState para poner disbaled el button del tipo Guardar
+  const [btnTipoDisabled, setBtnTipoDisabled] = useState(true);
+
+  //UseState para poner disbaled el button del tipo Guardar
+  const [btnEliminarTipoDisabled, setBtnEliminarTipoDisabled] = useState(true);
 
   //UseStates de los inputs
   const [{ tituloValue }, handleInputChangeTitulo, tituloChanges, reset1] = useForm({
@@ -57,6 +60,9 @@ export const Productos = () => {
   const [showGuardarTipo, setShowGuardarTipo] = useState(false);
   const handleCloseGuardarTipo = () => setShowGuardarTipo(false);
 
+  const [showEliminarTipo, setShowEliminarTipo] = useState(false);
+  const handleCloseEliminarTipo = () => setShowEliminarTipo(false);
+
   //States para las alertas
   const [alertText, setAlertText] = useState('');
   const [alertStyle, setAlerStyle] = useState('');
@@ -73,8 +79,11 @@ export const Productos = () => {
     getProductosData(setProductos);
     getProductosData(setProductosFijos);
     getTipProductosData(setTipProductos);
-    localStorage.setItem('numProd', productos.length.toString());
-    //console.log('USE EFFECT: ',productos.length);
+      setTimeout(() => {
+        console.log('CARGADO');
+        localStorage.setItem('tipoSelected', 'QX5jkBAQ6YggCXXxTySD');
+        simularSeleccionTipoProducto();
+      }, 200);
   }, [])
 
   //console.log(productos);
@@ -86,11 +95,29 @@ export const Productos = () => {
     (paginaActual * ITEMS_POR_PAGINA)
   )
 
+  window.onload = function(){
+    setTimeout(() => {
+      console.log('CARGADO');
+      localStorage.setItem('tipoSelected', 'QX5jkBAQ6YggCXXxTySD');
+      simularSeleccionTipoProducto();
+    }, 200);
+  }
+
+
 
   //Guardar Nuevo producto
-  const handleInputGuardar = (e) => {
-    setAnimationStyle('animate__animated animate__fadeIn'); 
+  const handleInputGuardar = async (e) => {
     e.preventDefault();
+
+    if (localStorage.getItem('tipoSelected') == 'QX5jkBAQ6YggCXXxTySD'){
+      setAnimationStyle('animate__animated animate__fadeIn');
+      setAlertText('No puedes guardar un producto sin elegir su tipo');
+      setAlerStyle('alert alert-danger');
+      eliminarAlerta();
+      return;
+    }
+
+    setAnimationStyle('animate__animated animate__fadeIn');
 
     if (descValue.length < 1) {
       return;
@@ -102,14 +129,34 @@ export const Productos = () => {
       precio: precioValue,
     }
 
-    localStorage.setItem('numProd', (productos.length + 1).toString());
-    addProducto(newProd);
+    const newId = await addProducto(newProd);
+    updateTipoProducto(newId, tipProductos);
+
     getProductosData(setProductos);
     getProductosData(setProductosFijos);
+
     setAlertText('Producto añadido correctamente');
     setAlerStyle('alert alert-success');
     eliminarAlerta();
+
     reset();
+    simularSeleccionTipoProducto();
+  }
+
+  const simularSeleccionTipoProducto = () => {
+    setTimeout(() => {
+      const id = localStorage.getItem('tipoSelected');
+      document.getElementById(id).click();
+    }, 200);
+    
+  }
+
+  const simularSeleccionTipoProductoTODOS = () => {
+    setTimeout(() => {
+      const id = 'QX5jkBAQ6YggCXXxTySD';
+      document.getElementById(id).click();
+    }, 200);
+    
   }
 
   //Boton de editar
@@ -143,6 +190,26 @@ export const Productos = () => {
   }
 
 
+  const handleEliminarTipo = () => {
+    setShowEliminarTipo(true);
+  }
+
+  const handleEliminarTipoConfirm = async () => {
+    setAnimationStyle('animate__animated animate__fadeIn'); 
+    const found = tipProductos.find(prod => prod.id == localStorage.getItem('tipoSelected'));
+    await deleteTipo(found);
+    setShowEliminarTipo(false);
+    getProductosData(setProductos);
+    getProductosData(setProductosFijos);
+    getTipProductosData(setTipProductos);
+    setAlertText('Tipo de producto eliminado correctamente');
+    setAlerStyle('alert alert-warning');
+    eliminarAlerta();
+    simularSeleccionTipoProductoTODOS();
+
+  }
+
+
   const handleEditarProd = () => {
     setAnimationStyle('animate__animated animate__fadeIn'); 
     const id = localStorage.getItem('edit');
@@ -161,13 +228,15 @@ export const Productos = () => {
     setAlertText('Producto editado correctamente');
     setAlerStyle('alert alert-primary');
     eliminarAlerta();
+
+    simularSeleccionTipoProducto();
   }
 
 
   const deleteProd = (handleCloseBorrar) => {
     setAnimationStyle('animate__animated animate__fadeIn'); 
     const id = localStorage.getItem('delete');
-    deleteProduct(id);
+    deleteProduct(id, tipProductos);
     reset();
     handleCloseBorrar();
     getProductosData(setProductos);
@@ -175,6 +244,8 @@ export const Productos = () => {
     setAlertText('Producto eliminado correctamente');
     setAlerStyle('alert alert-warning');
     eliminarAlerta();
+
+    simularSeleccionTipoProducto();
   }
 
 
@@ -255,6 +326,14 @@ export const Productos = () => {
   const middleProd = async (e) => {
     document.getElementById('prodSelected').value = e.target.name;
     actualizarTabla(e.target.id);
+    localStorage.setItem('tipoSelected', e.target.id);
+
+    if (localStorage.getItem('tipoSelected') != 'QX5jkBAQ6YggCXXxTySD') {
+      setBtnEliminarTipoDisabled(false);
+    }else{
+      setBtnEliminarTipoDisabled(true);
+    }
+
   }
 
   const getListaIdsProds = () => {
@@ -290,7 +369,7 @@ export const Productos = () => {
       <div className='container'>
         <div className='row'>
 
-          <div className='col-7'>
+          <div className='col-5'>
             <div className='sec-tipos'>
               <InputGroup className="mb-3">
                 <DropdownButton
@@ -316,6 +395,15 @@ export const Productos = () => {
                 />
               </InputGroup>
             </div>
+          </div>
+
+          <div className='col-2'>
+            <button
+                    className='btn btn-danger'
+                    disabled={btnEliminarTipoDisabled}
+                    onClick={handleEliminarTipo}
+                    type='submit'
+                  >Eliminar tipo</button>
           </div>
             
           <div className='col-4'>
@@ -509,6 +597,17 @@ export const Productos = () => {
         name='ModalGuardarTipo'
         titulo='Guardar tipo'
         desc={ `¿Estás seguro que deseas guardar el tipo de producto: "${tipoValue}" ?` }
+      ></CompModal>
+
+      <CompModal
+        show={showEliminarTipo}
+        handleClose={handleCloseEliminarTipo}
+        btnAceptar={handleEliminarTipoConfirm}
+        btnText={'Eliminar tipo de producto'}
+        style={'danger'}
+        name='ModalEliminarTipo'
+        titulo='Eliminar tipo'
+        desc={ `¿Estás seguro que deseas eliminar el tipo: "${5}" y todos sus productos?` }
       ></CompModal>
 
     </>

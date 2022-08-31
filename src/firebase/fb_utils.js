@@ -59,21 +59,41 @@ export const getTipProductosData = async ( setItems ) => {
 }
 
 
-export const addProducto = ( producto ) => {
+export const addProducto = async ( producto ) => {
     const newID = localStorage.getItem('numProd');
-    addDoc(collection(db, 'prodcuts'), { 
+    const nProd = await addDoc(collection(db, 'prodcuts'), { 
         titulo: producto.titulo,
         desc: producto.desc,
         precio: producto.precio,
         id: newID
     });
+    return nProd.id;
+}
+
+export const updateTipoProducto = async (newId, tipoProductos) => {
+    //Se mete el id del nuevo producto en la lista del tipo
+    const idTipo = localStorage.getItem('tipoSelected');
+    const prodSelected = tipoProductos.find(prod => prod.id == idTipo);
+    prodSelected.prods.push(newId);
+    await updateDoc(doc(db, 'tipoProductos', idTipo),  { 
+        prods: prodSelected.prods
+     } );
+    
+     //Se mete tambien en la lista de todos
+    const idTodos = 'QX5jkBAQ6YggCXXxTySD';
+    const prodTodos = tipoProductos.find(prod => prod.id == idTodos);
+    prodTodos.prods.push(newId);
+     await updateDoc(doc(db, 'tipoProductos', idTodos),  { 
+        prods: prodTodos.prods
+     } );
 }
 
 
 export const addTipoProducto = ( tipoProd ) => {
     //const newID = localStorage.getItem('numProd');
     addDoc(collection(db, 'tipoProductos'), { 
-        titulo: tipoProd.titulo
+        titulo: tipoProd.titulo,
+        prods: []
     });
 }
 
@@ -90,8 +110,40 @@ export const updateProduct = async( producto ) => {
 }
 
 
-export const deleteProduct = async( id ) => {
+export const deleteProduct = async( id, tipoProductos ) => {
     await deleteDoc(doc(db, 'prodcuts', id));
+
+    if (tipoProductos != undefined) {
+        const idTipo = localStorage.getItem('tipoSelected');
+        const prodSelected = tipoProductos.find(prod => prod.id == idTipo);
+
+        //Para el tipo especifico
+        const nuevosProds = prodSelected.prods.filter((item) => item !== id);
+        await updateDoc(doc(db, 'tipoProductos', idTipo), {
+            prods: nuevosProds
+        });
+
+        //Para el tipo TODOS
+        const idTodos = 'QX5jkBAQ6YggCXXxTySD';
+        const prodTodos = tipoProductos.find(prod => prod.id == idTodos);
+        const nuevosProdsTodos = prodTodos.prods.filter((item) => item !== id);
+        await updateDoc(doc(db, 'tipoProductos', idTodos), {
+            prods: nuevosProdsTodos
+        });
+    }
+}
+
+
+export const deleteTipo = async ( tipo ) => {
+
+    console.log('deleteTipo: ', tipo);
+
+    await deleteDoc(doc(db, 'tipoProductos', tipo.id));
+
+    tipo.prods.forEach(prod => {
+         deleteProduct(prod);
+      });
+
 }
 
 
