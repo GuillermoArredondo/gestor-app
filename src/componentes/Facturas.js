@@ -23,6 +23,12 @@ export const Facturas = () => {
     });
   }
 
+  const handleNuevaFacturaEstancias = () => {
+    navigate('/NuevaFacturaEstancias', {
+      replace: true
+    });
+  }
+
   useEffect(() => {
     getFacturasData(setFacturas);
     console.log('Facturas: ', facturas.length)
@@ -48,7 +54,7 @@ export const Facturas = () => {
           <div style={{ float: 'right' }}>
             <button
               className='btn btn-outline-primary'
-              onClick={handleNuevaFactura}
+              onClick={handleNuevaFacturaEstancias}
               type='submit'
             >Nueva Factura (Estancias)</button>
           </div>

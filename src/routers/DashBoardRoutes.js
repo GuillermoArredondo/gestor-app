@@ -6,6 +6,7 @@ import { Productos } from '../componentes/Productos';
 import { GestorApp } from '../GestorApp';
 import { NuevaFactura } from '../componentes/NuevaFactura';
 import { ConsultarFactura } from '../componentes/ConsultarFactura';
+import { NuevaFacturaEstancias } from '../componentes/NuevaFacturaEstancias';
 
 export const DashBoardRoutes = () => {
   return (
@@ -19,6 +20,7 @@ export const DashBoardRoutes = () => {
                 <Route path="/Facturas" element={<Facturas />} />
                 <Route path="/Productos" element={<Productos />} />
                 <Route path='/NuevaFactura' element={<NuevaFactura />} />
+                <Route path='/NuevaFacturaEstancias' element={<NuevaFacturaEstancias />} />
                 <Route path='/ConsultarFactura' element={<ConsultarFactura />} />
         </Routes>
 
