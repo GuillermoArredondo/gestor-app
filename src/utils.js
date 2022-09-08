@@ -14,14 +14,14 @@ const getTotal = (productos) => {
     return total.toFixed(2);
 }
 
-const getIva = (productos) => {
-    const iva = getTotal(productos) * 0.21;
+const getIva = (productos, IVA) => {
+    const ivaFort = IVA / 100;
+    const iva = getTotal(productos) * ivaFort;
     return iva.toFixed(2);
 }
 
-const getTotalIva = (productos) => {
-    console.log(getTotal(productos) , getIva(productos))
-    const totalIva = parseInt(getTotal(productos)) + parseInt(getIva(productos));
+const getTotalIva = (productos, IVA) => {
+    const totalIva = parseInt(getTotal(productos)) + parseInt(getIva(productos, IVA));
     return totalIva.toFixed(2);
 }
 

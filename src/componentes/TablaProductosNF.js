@@ -123,15 +123,15 @@ export const TablaProductosNF = (props) => {
                 </div> */}
 
                 <div className='col-12' id='alertas2'>
-                    <p className='totalNFPrecio' >{getIva(props.productos)} €</p>
-                    <p className='totalNFLabel' id='alertas3'>IVA 21%:</p>
+                    <p className='totalNFPrecio' >{getIva(props.productos, props.IVA)} €</p>
+                    <p className='totalNFLabel' id='alertas3'>{`IVA ${props.IVA}%:`}</p>
                 </div>
 
             </div>
             {/* Total + Iva */}
             <div className='row'>
                 <div className='col-12'>
-                    <p className='totalNFPrecio' >{getTotalIva(props.productos)} €</p>
+                    <p className='totalNFPrecio' >{getTotalIva(props.productos, props.IVA)} €</p>
                     <p className='totalNFLabel' >Total + IVA:</p>
                 </div>
             </div>
