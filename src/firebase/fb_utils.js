@@ -169,8 +169,8 @@ export const getFacturasData = async ( setItems ) => {
 }
 
 
-export const addFactura = ( factura ) => {
-    addDoc(collection(db, 'facturas'), { 
+export const addFactura = async ( factura ) => {
+    const id = await addDoc(collection(db, 'facturas'), { 
         titulo: factura.titulo,
         desc: factura.desc,
         fecha: factura.fecha,
@@ -181,6 +181,7 @@ export const addFactura = ( factura ) => {
         cantidades: factura.cantidades,
         IVAValue: factura.IVAValue
     });
+    localStorage.setItem('factura', id.id);
 }
 
 export const getFactura = async( idFactura, setItem, setInFields ) => {

@@ -14,6 +14,7 @@ import { getProductosData } from '../firebase/fb_utils'
 import { TablaProductosNF } from './TablaProductosNF';
 import { CompModal } from '../ui/Modal';
 import { getTotal, getTotalIva, getIva } from '../utils';
+import { useNavigate } from 'react-router-dom';
 registerLocale("es", es);
 
 
@@ -244,9 +245,12 @@ export const NuevaFactura = () => {
         arr.splice( i, 1 );
     }
   }
-
+  const navigate = useNavigate();
+  
   const handleConsultarFactura = () => {
-    
+    navigate('/ConsultarFactura', {
+      replace: true
+    });
   }
 
   //Guardar Nueva Factura
@@ -257,8 +261,8 @@ export const NuevaFactura = () => {
         desc: descValue,
         fecha: getFechaFormat(),
         total: getTotal(productosTabla),
-        iva: getIva(productosTabla, IVAValue),
-        totalIva: getTotalIva(productosTabla, IVAValue),
+        iva: getIva(productosTabla, parseInt(IVAValue)),
+        totalIva: getTotalIva(productosTabla, parseInt(IVAValue)),
         productos: getIdsProductos(),
         cantidades: getCantidades(),
         IVAValue: IVAValue
