@@ -113,7 +113,7 @@ export const NuevaFactura = () => {
   }
 
   const middleFecha = (e) => {
-    checkDisabled();
+    //checkDisabled();
     handleInputChangeFecha(e, 'fechaValue');
   }
 
@@ -257,10 +257,11 @@ export const NuevaFactura = () => {
         desc: descValue,
         fecha: getFechaFormat(),
         total: getTotal(productosTabla),
-        iva: getIva(productosTabla),
-        totalIva: getTotalIva(productosTabla),
+        iva: getIva(productosTabla, IVAValue),
+        totalIva: getTotalIva(productosTabla, IVAValue),
         productos: getIdsProductos(),
-        cantidades: getCantidades()
+        cantidades: getCantidades(),
+        IVAValue: IVAValue
     }
 
     addFactura(nuevaFactura);

@@ -178,7 +178,8 @@ export const addFactura = ( factura ) => {
         iva: factura.iva,
         totalIva: factura.totalIva,
         productos: factura.productos,
-        cantidades: factura.cantidades
+        cantidades: factura.cantidades,
+        IVAValue: factura.IVAValue
     });
 }
 
@@ -196,7 +197,8 @@ export const getFactura = async( idFactura, setItem, setInFields ) => {
             totalIva: docSnap.data().totalIva,
             productos: docSnap.data().productos,
             cantidades: docSnap.data().cantidades,
-            id: docSnap.id
+            id: docSnap.id,
+            IVAValue : docSnap.data().IVAValue
         }
         console.log('getFactura: ', factura)
         setItem(prevfactura => ({...factura}));
@@ -223,7 +225,8 @@ export const getFactura2 = async( idFactura ) => {
             totalIva: docSnap.data().totalIva,
             productos: docSnap.data().productos,
             cantidades: docSnap.data().cantidades,
-            id: docSnap.id
+            id: docSnap.id,
+            IVAValue : docSnap.data().IVAValue
         }
         console.log('getFactura: ', factura)
         
