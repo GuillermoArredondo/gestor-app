@@ -58,12 +58,21 @@ export const NuevaFacturaEstancias = () => {
   const [{ prodSelected }, handleInputChangeProd, prodChanges, reset4] = useFormInput({
     prodSelected: ''
   });
+  const [{ estanciaValue }, handleInputChangeEstancia, estanciaChanges, reset7] = useForm({
+    estanciaValue: ''
+  });
 
   //UseState para poner disbaled los buttons
   const [btnDisabled, setBtnDisabled] = useState(true);
 
   //UseState para poner disbaled Aniadir producto
   const [btnDisabledAniadir, setBtnDisabledAniadir] = useState(true);
+
+  //UseState para poner disbaled Aniadir estancias
+  const [btnDisabledAniadirEstancia, setBtnDisabledAniadirEstancia] = useState(true);
+
+  //UseState para poner disbaled Aniadir estancias
+  const [btnDisabledEliminarEstancia, setBtnDisabledEliminarEstancia] = useState(true);
 
   //UseState para la fecha del DatePicker
   const fecha = new Date()
@@ -104,6 +113,15 @@ export const NuevaFacturaEstancias = () => {
     if(e.target.value >= 0){
       handleInputChangeIVA(e);
     }
+  }
+
+  const middleEstancia = (e) => {
+    if (e.target.value.length >= 1){
+      setBtnDisabledAniadirEstancia(false);
+    }else{
+      setBtnDisabledAniadirEstancia(true);
+    }
+    handleInputChangeEstancia(e);
   }
   
   const middleTitulo = (e) => {
@@ -281,6 +299,41 @@ export const NuevaFacturaEstancias = () => {
     // eliminarAlerta();
   }
 
+
+  const handleInputGuardarEstancia = (e) => {
+    e.preventDefault();
+    const nweEst = [...estancias, { 
+      id: uuidv4(), 
+      titulo: estanciaValue 
+    }];
+    setEstancias(prev => ([...nweEst]));
+    reset7();
+    setBtnDisabledAniadirEstancia(true);
+  }
+
+  const handleInputEliminarEstancia = (e) => {
+    e.preventDefault();
+    const idEstancia = localStorage.getItem('estanciaSelected');
+    const found = estancias.find(est => est.id == idEstancia);
+    removeItemFromArr(estancias, found);
+    setEstancias(prev => ([...estancias]));
+    document.getElementById('estanciaSelected').value = '';
+  }
+
+  function removeItemFromArr ( arr, item ) {
+    var i = arr.indexOf( item );
+ 
+    if ( i !== -1 ) {
+        arr.splice( i, 1 );
+    }
+  }
+
+  function uuidv4() {
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    );
+  }
+
   const getFechaFormat = () => {
     const elFecha = document.getElementById('inputFecha');
     return elFecha.value;
@@ -305,6 +358,12 @@ export const NuevaFacturaEstancias = () => {
   const handleInputGuardar = (e) => {
     e.preventDefault();
     setShowGuardar(true);
+  }
+
+  const middleEstancias = (e) => {
+    localStorage.setItem('estanciaSelected', e.target.id);
+    document.getElementById('estanciaSelected').value = e.target.name;
+    setBtnDisabledEliminarEstancia(false);
   }
 
 
@@ -366,7 +425,7 @@ export const NuevaFacturaEstancias = () => {
 
           <div className='col-1'>
             <button
-              className='btn btn-outline-primary'
+              className='btn btn-primary'
               disabled={btnDisabled}
               onClick={handleInputGuardar}
               type='submit'
@@ -376,7 +435,7 @@ export const NuevaFacturaEstancias = () => {
 
           <div className='col-1'>
             <button
-              className='btn btn-outline-danger'
+              className='btn btn-danger'
               disabled={btnDisabled}
               onClick={reset}
               type='reset'
@@ -402,32 +461,62 @@ export const NuevaFacturaEstancias = () => {
 
         {/* Gestión de estancias */}
         <div className='row'>
-          
-            <div className='col-6'>
-              <InputGroup className="mb-3">
-                <DropdownButton
-                  variant="outline-secondary"
-                  title="Estancia"
-                  id="input-group-dropdown-1"
-                >
-                  {
-                    tipProductos && tipProductos.map(tipo =>
 
-                      <Dropdown.Item name={tipo.titulo} id={tipo.id} onClick={middleTipProd}>
-                        <a id={tipo.id} name={tipo.titulo} style={{ color: 'black' }}>{tipo.titulo}</a>
-                      </Dropdown.Item>
+          <div className='col-4'>
+            <InputGroup className="mb-3">
+              <DropdownButton
+                variant="outline-secondary"
+                title="Estancias"
+                id="input-group-dropdown-1"
+              >
+                {
+                  estancias && estancias.map(est =>
 
-                    )
-                  }
+                    <Dropdown.Item name={est.titulo} id={est.id} onClick={middleEstancias}>
+                      <a id={est.id} name={est.titulo} style={{ color: 'black' }}>{est.titulo}</a>
+                    </Dropdown.Item>
 
-                </DropdownButton>
-                <Form.Control
-                  disabled aria-label="Text input with dropdown button"
-                  id='tipProdSelected'
-                />
-              </InputGroup>
-            </div>
-          
+                  )
+                }
+
+              </DropdownButton>
+              <Form.Control
+                disabled aria-label="Text input with dropdown button"
+                id='estanciaSelected'
+              />
+            </InputGroup>
+          </div>
+
+          <div className='col-4'>
+            <input
+              className='form-control'
+              placeholder='Estancia'
+              type='text'
+              name='estanciaValue'
+              onChange={middleEstancia}
+              value={estanciaValue}
+            ></input>
+          </div>
+
+          <div className='col-2' style={{flexDirection: 'column', display: 'flex'}}>
+            <button
+              className='btn btn-outline-primary'
+              disabled={btnDisabledAniadirEstancia}
+              onClick={handleInputGuardarEstancia}
+              type='submit'
+            >Añadir estancia</button>
+          </div>
+
+
+          <div className='col-2' style={{flexDirection: 'column', display: 'flex'}}>
+            <button
+              className='btn btn-outline-danger'
+              disabled={btnDisabledEliminarEstancia}
+              onClick={handleInputEliminarEstancia}
+              type='reset'
+            >Borrar estancia</button>
+          </div>
+
         </div>
 
         {/* Productos y boton de añadir */}
