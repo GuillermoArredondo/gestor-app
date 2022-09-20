@@ -11,7 +11,7 @@ import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css'
 import es from 'date-fns/locale/es';
 import { getProductosData } from '../firebase/fb_utils'
-import { TablaProductosNF } from './TablaProductosNF';
+import { TablaProductosNFEstancias } from './TablaProductosNFEstancias';
 import { CompModal } from '../ui/Modal';
 import { getTotal, getTotalIva, getIva } from '../utils';
 import { useNavigate } from 'react-router-dom';
@@ -210,35 +210,74 @@ export const NuevaFacturaEstancias = () => {
 
 
   //Añadir producto a la tabla
-  const handleInputAniadir = (e) => {
+  const handleInputAniadir = async (e) => {
     e.preventDefault();
 
     const idEncontrado = localStorage.getItem('prodSelec');
-    const found = productos.find( prod => prod.id == idEncontrado);
+    const found = productos.find(prod => prod.id == idEncontrado);
 
-    if ( (cantidadValue > 0) && sePuedeAniadir(found))
-    {
-      
-      const precioTotal = cantidadValue * found.precio;
-  
-      const newProd = [...productosTabla,{
-        id : found.id,
-        titulo: found.titulo,
-        desc: found.desc,
-        cantidad: cantidadValue,
-        precio: found.precio,
-        precioTotal : precioTotal
-      }]
-  
-      //setProductosTabla(newProd);
-      setProductosTabla(prevProductos => ([...newProd]));
-      numTabla++;
-      checkDisabled();
-    }else
-    {
-      document.getElementById('inputCantidad').focus();
+    if (document.getElementById('estanciaSelected').value.length > 0) {
+      if ((cantidadValue > 0) && sePuedeAniadir(found)) {
+
+        const precioTotal = cantidadValue * found.precio;
+
+        const newProd = [...productosTabla, {
+          id: found.id,
+          titulo: found.titulo,
+          desc: found.desc,
+          cantidad: cantidadValue,
+          precio: found.precio,
+          precioTotal: precioTotal,
+          estancia: getEstanciaById(localStorage.getItem('estanciaSelected')),
+          orden: getEstanciaByIdTitulo(localStorage.getItem('estanciaSelected'))
+
+        }]
+
+        newProd.sort(dynamicSort('orden'));
+        setProductosTabla(prevProductos => ([...newProd]));
+        numTabla++;
+        checkDisabled();
+
+      } else {
+        document.getElementById('inputCantidad').focus();
+      }
+    }else{
+      console.log('estanciaSelected', document.getElementById('estanciaSelected').value.length);
+      document.getElementById('drop-est').focus();
     }
 
+
+
+  }
+
+  function dynamicSort(property) {
+    var sortOrder = 1;
+    if(property[0] === "-") {
+        sortOrder = -1;
+        property = property.substr(1);
+    }
+    return function (a,b) {
+        /* next line works with strings and numbers, 
+         * and you may want to customize it to your needs
+         */
+        var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+        return result * sortOrder;
+    }
+  }
+
+  const ordenar = () => {
+    productosTabla.sort(dynamicSort('orden'));
+    console.log('orden', productosTabla);
+    setProductosTabla(prevProductos => ([...productosTabla]));
+  }
+
+  const getEstanciaById = (idEst) => {
+    return estancias.find( estancia => estancia.id == idEst );
+  }
+
+  const getEstanciaByIdTitulo = (idEst) => {
+    const found =  estancias.find( estancia => estancia.id == idEst );
+    return found.titulo;
   }
 
   const sePuedeAniadir = (prod) => {
@@ -248,8 +287,24 @@ export const NuevaFacturaEstancias = () => {
         ok = false;
       }
     });
+    console.log('sePuedeAniadir', ok);
     return ok;
   }
+
+  const sePuedeAniadirPorEstancia = (prod) => {
+    let ok = true;
+    const idEst = localStorage.getItem('estanciaSelected');
+    productosTabla.forEach(producto => {
+
+      if (prod.estancia.id == idEst) {
+        ok = false;
+      }
+
+    });
+    return ok;
+  }
+
+
 
   //Eliminar un producto de la tabla
   const deleteProdTabla = (found) => {
@@ -318,6 +373,8 @@ export const NuevaFacturaEstancias = () => {
     removeItemFromArr(estancias, found);
     setEstancias(prev => ([...estancias]));
     document.getElementById('estanciaSelected').value = '';
+    eliminarProdsEstancia(idEstancia);
+    eliminarProdsEstancia(idEstancia);
   }
 
   function removeItemFromArr ( arr, item ) {
@@ -326,6 +383,17 @@ export const NuevaFacturaEstancias = () => {
     if ( i !== -1 ) {
         arr.splice( i, 1 );
     }
+  }
+
+  const eliminarProdsEstancia = (idEstancia) => {
+    console.log('eliminarProdsEstancia 1 ', productosTabla);
+    productosTabla.forEach(prod => {
+      if (prod.estancia.id == idEstancia) {
+        removeItemFromArr(productosTabla, prod);
+      }
+    });
+    setProductosTabla(prev => ([...productosTabla]));
+    console.log('eliminarProdsEstancia 2 ', productosTabla);
   }
 
   function uuidv4() {
@@ -467,7 +535,7 @@ export const NuevaFacturaEstancias = () => {
               <DropdownButton
                 variant="outline-secondary"
                 title="Estancias"
-                id="input-group-dropdown-1"
+                id="drop-est"
               >
                 {
                   estancias && estancias.map(est =>
@@ -606,7 +674,7 @@ export const NuevaFacturaEstancias = () => {
         </div>
 
         {/* Tabla con los productos que se añaden */}
-        <TablaProductosNF
+        <TablaProductosNFEstancias
           id='tablaProd'
           productos={productosTabla}
           deleteProdTabla={deleteProdTabla}
@@ -614,8 +682,9 @@ export const NuevaFacturaEstancias = () => {
           animationStyle={animationStyle}
           alertStyle={alertStyle}
           IVA={IVAValue}
+          ordenar={ordenar}
           >
-        </TablaProductosNF>
+        </TablaProductosNFEstancias>
 
 
       </form>
