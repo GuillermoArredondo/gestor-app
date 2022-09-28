@@ -265,7 +265,8 @@ export const NuevaFactura = () => {
         totalIva: getTotalIva(productosTabla, parseInt(IVAValue)),
         productos: getIdsProductos(),
         cantidades: getCantidades(),
-        IVAValue: IVAValue
+        IVAValue: IVAValue,
+        tipo: 'normal'
     }
 
     addFactura(nuevaFactura);

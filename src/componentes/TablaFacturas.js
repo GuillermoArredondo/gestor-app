@@ -14,12 +14,33 @@ export const TablaFacturas = (props) => {
         //const factura = await getFactura2(e.target.id)
         //console.log('handleConsultaClick', factura.titulo);
         localStorage.setItem('factura', e.target.id);
-        navigate('/ConsultarFactura', {
-            replace: true
-          });
+        console.log('handleConsultaClick', esNormal(e.target.id));
+        let entrar = await esNormal(e.target.id);
+        if (entrar) {
+            navigate('/ConsultarFactura', {
+                replace: true
+              });
+        }else{
+            navigate('/ConsultarFacturaEstancias', {
+                replace: true
+              });
+        }
+        
     }
 
-  const navigate = useNavigate();
+    const esNormal =  async (id) => {
+        
+        let normal = true;
+        let f = await getFactura2(id);
+        if (f.tipo == 'estancias') {
+            normal = false;
+        }
+        console.log('esNormal', f.tipo, normal);
+        return normal;
+        //TODO comprobar si es una factua normal segun el tipo
+    }
+
+    const navigate = useNavigate();
 
     
     return (

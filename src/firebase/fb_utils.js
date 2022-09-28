@@ -179,7 +179,9 @@ export const addFactura = async ( factura ) => {
         totalIva: factura.totalIva,
         productos: factura.productos,
         cantidades: factura.cantidades,
-        IVAValue: factura.IVAValue
+        estancias: factura.estancias,
+        IVAValue: factura.IVAValue,
+        tipo: factura.tipo
     });
     localStorage.setItem('factura', id.id);
 }
@@ -198,8 +200,10 @@ export const getFactura = async( idFactura, setItem, setInFields ) => {
             totalIva: docSnap.data().totalIva,
             productos: docSnap.data().productos,
             cantidades: docSnap.data().cantidades,
+            estancias: docSnap.data().estancias,
             id: docSnap.id,
-            IVAValue : docSnap.data().IVAValue
+            IVAValue : docSnap.data().IVAValue,
+            tipo: docSnap.data().tipo
         }
         console.log('getFactura: ', factura)
         setItem(prevfactura => ({...factura}));
@@ -226,11 +230,11 @@ export const getFactura2 = async( idFactura ) => {
             totalIva: docSnap.data().totalIva,
             productos: docSnap.data().productos,
             cantidades: docSnap.data().cantidades,
+            estancias: docSnap.data().estancias,
             id: docSnap.id,
-            IVAValue : docSnap.data().IVAValue
+            IVAValue : docSnap.data().IVAValue,
+            tipo: docSnap.data().tipo
         }
-        console.log('getFactura: ', factura)
-        
         return factura;
 
       } else {

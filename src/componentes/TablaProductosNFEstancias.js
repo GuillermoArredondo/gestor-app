@@ -21,7 +21,7 @@ export const TablaProductosNFEstancias = (props) => {
     return (
         <>
 
-            <table className='table table-striped table-hover'>
+            <table className='table table-hover'>
                 <thead>
                     <tr>
                         <th style={{ width: 10 + '%' }}>Estancia</th>
@@ -45,7 +45,7 @@ export const TablaProductosNFEstancias = (props) => {
                     {
                         props.productos && props.productos.map(producto =>
 
-                            <tr key={producto.id}>
+                            <tr key={producto.id}  style={{backgroundColor: producto.estancia.color}}>
                                 <td>
                                     {producto.estancia.titulo}
                                 </td>
@@ -54,13 +54,13 @@ export const TablaProductosNFEstancias = (props) => {
                                 </td>
 
                                 {
-                                    producto.desc.length <= 100 ?
+                                    producto.desc.length <= 90 ?
                                         <td>
                                             {producto.desc}
                                         </td>
                                         :
                                         <td>
-                                            {producto.desc.substring(0, 100) + ' ...'}
+                                            {producto.desc.substring(0, 90) + ' ...'}
                                         </td>
                                 }
 

@@ -3,37 +3,50 @@ import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Form from 'react-bootstrap/Form';
 import { useForm } from '../Hooks/useForm';
+import { useFormArray } from '../Hooks/useFormArray';
 import { useFormDate } from '../Hooks/useFormDate';
 import { useFormInput } from '../Hooks/useFormInput';
-import { addFactura, getTipProductosData } from '../firebase/fb_utils'
+import { addFactura, getFactura, getProductosData2, updateFactura, getTipProductosData } from '../firebase/fb_utils'
 import React, { useEffect, useState } from 'react'
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css'
 import es from 'date-fns/locale/es';
 import { getProductosData } from '../firebase/fb_utils'
-import { TablaProductosNFEstancias } from './TablaProductosNFEstancias';
+import { TablaProductosNF } from './TablaProductosNF';
 import { CompModal } from '../ui/Modal';
 import { getTotal, getTotalIva, getIva } from '../utils';
+import { generarWord } from '../utilsDocx';
 import { useNavigate } from 'react-router-dom';
+import { TablaProductosNFEstancias } from './TablaProductosNFEstancias';
 registerLocale("es", es);
 
 
 
 
-export const NuevaFacturaEstancias = () => {
+export const ConsultarFacturaEstancias = () => {
 
   //array de colores para la tabla de estancias
   const colores = ['azure', 'beige', 'gainsboro'];
   const [numColor, setNumColor] = useState(0);
+
+  //Lista de estancias para rellenar el combo
+  const [estancias, setEstancias] = useState([]);
+
+  let prodAux = [];
+
+  const navigate = useNavigate();
+
+  //UseState para poner disbaled los buttons
+  const [modoEdit, setmModoEdit] = useState(true);
+
+  //state para la factura que consultar
+  const [facturaConsulta, setFacturaConsulta] = useState({});
 
   //Variable para checkear el boton de guardar
   let numTabla = 0;
 
   //Lista productos para rellenar el combo
   const [productos, setProductos] = useState([]);
-
-  //Lista de estancias para rellenar el combo
-  const [estancias, setEstancias] = useState([]);
 
   //Lista de productos que no se muta
   const [productosFijos, setProductosFijos] = useState([]);
@@ -54,14 +67,16 @@ export const NuevaFacturaEstancias = () => {
   const [{ cantidadValue }, handleInputChangeCantidad, cantidadChanges, reset5] = useForm({
     cantidadValue: ''
   });
+
   const [{ IVAValue }, handleInputChangeIVA, IVAChanges, reset6] = useForm({
-    IVAValue: '21'
+    IVAValue: ''
   });
 
   //UseState para el input de al lado del Dropdown
   const [{ prodSelected }, handleInputChangeProd, prodChanges, reset4] = useFormInput({
     prodSelected: ''
   });
+
   const [{ estanciaValue }, handleInputChangeEstancia, estanciaChanges, reset7] = useForm({
     estanciaValue: ''
   });
@@ -95,22 +110,17 @@ export const NuevaFacturaEstancias = () => {
   const [alertStyle, setAlerStyle] = useState('');
   const [animationStyle, setAnimationStyle] = useState('')
 
-  const eliminarAlerta = () => {
-    setTimeout( () => {
-      setAnimationStyle('animate__animated animate__fadeOut');
-      setTimeout( () => {
-        darFormatoDiv();     
-      }, 200);    
-    }, 5000);
-  }
+  //getProductosData(setProductos);
+  useEffect(() => {
+    getTipProductosData(setTipProductos);
+    getProductosData(setProductosFijos);
+    llamarMetodos();
+  }, [])
 
-  const darFormatoDiv = () => {
-    const e = document.getElementById('divAlertas');
-    e.remove();
-    const e2 = document.getElementById('alertas2');
-    e2.style.marginLeft = '810px';
-    const e3 = document.getElementById('alertas3');
-    e2.style.marginRight = '23px';
+  const llamarMetodos = async() => {
+    getProductosData(setProductos);
+    prodAux = await getProductosData2();
+    getFactura(localStorage.getItem('factura'), setFacturaConsulta, setInFields);
   }
 
   const middleIVA = (e) => {
@@ -118,44 +128,6 @@ export const NuevaFacturaEstancias = () => {
       handleInputChangeIVA(e);
     }
   }
-
-  const middleEstancia = (e) => {
-    if (e.target.value.length >= 1){
-      setBtnDisabledAniadirEstancia(false);
-    }else{
-      setBtnDisabledAniadirEstancia(true);
-    }
-    handleInputChangeEstancia(e);
-  }
-  
-  const middleTitulo = (e) => {
-    checkDisabled();
-    handleInputChangeTitulo(e);
-  }
-
-  const middleDesc = (e) => {
-    checkDisabled();
-    handleInputChangeDesc(e)
-  }
-
-  const middleFecha = (e) => {
-    //checkDisabled();
-    handleInputChangeFecha(e, 'fechaValue');
-  }
-
-  const middleCantidad = (e) => {
-    if(e.target.value >= 0){
-      handleInputChangeCantidad(e);
-    }
-  }
-
-  const middleProd = (e) => {
-    //console.log('Seleccionado: ' + e.target.id);
-    localStorage.setItem('prodSelec', e.target.id);
-    setBtnDisabledAniadir(false);
-    document.getElementById('prodSelected').value = e.target.name;
-  }
-
 
   const middleTipProd = (e) => {
     document.getElementById('tipProdSelected').value = e.target.name;
@@ -188,12 +160,41 @@ export const NuevaFacturaEstancias = () => {
     setProductos(prodsDelTipo);
   }
 
+  
+  const middleTitulo = (e) => {
+    checkDisabled();
+    handleInputChangeTitulo(e);
+  }
+
+  const middleDesc = (e) => {
+    checkDisabled();
+    handleInputChangeDesc(e)
+  }
+
+  const middleFecha = (e) => {
+    checkDisabled();
+    handleInputChangeFecha(e, 'fechaValue');
+  }
+
+  const middleCantidad = (e) => {
+    if(e.target.value >= 0){
+      handleInputChangeCantidad(e);
+    }
+  }
+
+  const middleProd = (e) => {
+    //console.log('Seleccionado: ' + e.target.id);
+    localStorage.setItem('prodSelec', e.target.id);
+    setBtnDisabledAniadir(false);
+    document.getElementById('prodSelected').value = e.target.name;
+  }
+
 
   const checkDisabled = () => {
-    if ((descValue.length > 1) && (tituloValue.length > 1) && (numTabla >= 1))
+    if ((descValue.length > 1) && (tituloValue.length > 1))
       setBtnDisabled(false);
-    //else
-      //setBtnDisabled(true);
+    else
+      setBtnDisabled(true);
   }
 
 
@@ -206,15 +207,126 @@ export const NuevaFacturaEstancias = () => {
     setBtnDisabled(true);
   }
 
-  useEffect(() => {
-    getProductosData(setProductos);
-    getTipProductosData(setTipProductos);
-    getProductosData(setProductosFijos);
-  }, [])
+  //Metodo para setear los datos de la factura
+  const setInFields = ( factura ) => {
+    tituloChanges(document.getElementsByName('tituloValue')[0], factura.titulo);
+    descChanges(document.getElementsByName('descValue')[0], factura.desc);
+    fechaChanges(document.getElementsByName('fechaValue')[0], getNuevaFechaFormat(factura.fecha));
+    setProductosTabla(selectProds(factura.productos, factura.cantidades, factura.estancias));
+    console.log('IVAValue', factura.IVAValue);
+    IVAChanges(document.getElementsByName('IVAValue')[0], factura.IVAValue);
+    setEstanciasOD2( factura.estancias ); 
+  }
+
+  const setEstanciasOD2 = (festancias) => {
+    let result = [];
+    festancias.forEach(element => {
+        if (!result.includes(element.id)){
+            result.push(element.id);
+        }
+    });
+
+    let res = [];
+    result.forEach(element => {
+        let found = festancias.find(est => est.id == element);
+        res.push(found);   
+    });
+    
+    console.log('setEstanciasOD2', res);
+    setEstancias(prevProductos => ([...res]));
+  }
+
+
+  const selectProds = (listaIds, listaCantidades, estancias) => {
+    const productosFromFactura = [];
+
+    for (let index = 0; index < listaIds.length; index++) {
+      let found = prodAux.find(prod => prod.id == listaIds[index]);
+      if(found != undefined)
+      {
+        const precioTotal = listaCantidades[index] * found.precio;
+        const newProd = {
+          id: found.id,
+          titulo: found.titulo,
+          desc: found.desc,
+          cantidad: listaCantidades[index],
+          precio: found.precio,
+          precioTotal: precioTotal,
+          estancia: estancias[index]
+        };
+      productosFromFactura.push(newProd);
+      }
+    }
+    if (productosFromFactura.length == 0){
+      console.log('está vacío');
+    }
+    return productosFromFactura;
+  } 
+
+
+  const getNuevaFechaFormat = ( fecha ) => {
+    const newFecha = new Date();
+
+    if (fecha.substring(0,1) == '0')
+    {
+      newFecha.setDate(fecha.substring(1,2));
+    }else
+    {
+      newFecha.setDate(fecha.substring(0,2));
+    }
+
+    if (fecha.substring(3,4) == '0')
+    {
+      let month = parseInt(fecha.substring(4,5));
+      month--
+      newFecha.setMonth(month);
+    }else
+    {
+      let month = parseInt(fecha.substring(3,5));
+      month--
+      newFecha.setMonth(month);
+    }
+
+    newFecha.setFullYear(fecha.substring(6,10));
+    return newFecha;
+
+  }
 
 
   //Añadir producto a la tabla
-  const handleInputAniadir = async (e) => {
+//   const handleInputAniadir = (e) => {
+//     e.preventDefault();
+
+//     const idEncontrado = localStorage.getItem('prodSelec');
+//     const found = productos.find( prod => prod.id == idEncontrado);
+
+//     if ( (cantidadValue > 0) && sePuedeAniadir(found))
+//     {
+      
+//       const precioTotal = cantidadValue * found.precio;
+  
+//       const newProd = [...productosTabla,{
+//         id : found.id,
+//         titulo: found.titulo,
+//         desc: found.desc,
+//         cantidad: cantidadValue,
+//         precio: found.precio,
+//         precioTotal : precioTotal,
+//         estancia: getEstanciaById(localStorage.getItem('estanciaSelected')),
+//         orden: getEstanciaByIdTitulo(localStorage.getItem('estanciaSelected'))
+//       }]
+  
+//       //setProductosTabla(newProd);
+//       setProductosTabla(prevProductos => ([...newProd]));
+//       numTabla++;
+//       checkDisabled();
+//     }else
+//     {
+//       document.getElementById('inputCantidad').focus();
+//     }
+
+//   }
+const handleInputAniadir = async (e) => {
     e.preventDefault();
 
     const idEncontrado = localStorage.getItem('prodSelec');
@@ -254,25 +366,14 @@ export const NuevaFacturaEstancias = () => {
 
   }
 
-  function dynamicSort(property) {
-    var sortOrder = 1;
-    if(property[0] === "-") {
-        sortOrder = -1;
-        property = property.substr(1);
-    }
-    return function (a,b) {
-        /* next line works with strings and numbers, 
-         * and you may want to customize it to your needs
-         */
-        var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
-        return result * sortOrder;
-    }
-  }
-
-  const ordenar = () => {
-    productosTabla.sort(dynamicSort('orden'));
-    console.log('orden', productosTabla);
-    setProductosTabla(prevProductos => ([...productosTabla]));
+  const sePuedeAniadir = (prod) => {
+    let ok = true;
+    productosTabla.forEach(producto => {
+      if (producto.id == prod.id){
+        ok = false;
+      }
+    });
+    return ok;
   }
 
   const getEstanciaById = (idEst) => {
@@ -283,17 +384,6 @@ export const NuevaFacturaEstancias = () => {
     const found =  estancias.find( estancia => estancia.id == idEst );
     return found.titulo;
   }
-
-  // const sePuedeAniadir = (prod) => {
-  //   let ok = true;
-  //   productosTabla.forEach(producto => {
-  //     if (producto.id == prod.id){
-  //       ok = false;
-  //     }
-  //   });
-  //   console.log('sePuedeAniadir', ok);
-  //   return ok;
-  // }
 
   const sePuedeAniadirPorEstancia = (prod) => {
     console.log('sePuedeAniadirPorEstancia', prod);
@@ -311,7 +401,24 @@ export const NuevaFacturaEstancias = () => {
     return ok;
   }
 
+  //Añadir producto a la tabla que viene de la factura
+  // const aniadirDesdeFactura = (id, cantidad) => {
+  //   console.log('aniadir: ', id,cantidad);
+  //   let found = productos.find(prod => prod.id == id);
+  //   console.log('found: ', found);
+  //   const precioTotal = cantidad * found.precio;
+  //   const newProd = [...productosTabla, {
+  //     id: found.id,
+  //     titulo: found.titulo,
+  //     desc: found.desc,
+  //     cantidad: cantidad,
+  //     precio: found.precio,
+  //     precioTotal: precioTotal
+  //   }];
+  //   setProductosTabla(prevProductos => ([...newProd]));
+  //   numTabla++;
 
+  // }
 
   //Eliminar un producto de la tabla
   const deleteProdTabla = (found) => {
@@ -328,39 +435,36 @@ export const NuevaFacturaEstancias = () => {
         arr.splice( i, 1 );
     }
   }
-  const navigate = useNavigate();
-  
+
   const handleConsultarFactura = () => {
-    navigate('/ConsultarFactura', {
-      replace: true
-    });
+    setShowElegir(false);
+    setmModoEdit(true);
   }
 
-  //Guardar Nueva Factura
-  const handleGuardarFactura = () => {
+  //Editar Nueva Factura
+  const handleEditarFacturaNext = () => {
     
     const nuevaFactura = {
         titulo: tituloValue,
         desc: descValue,
         fecha: getFechaFormat(),
         total: getTotal(productosTabla),
-        iva: getIva(productosTabla, parseInt(IVAValue)),
-        totalIva: getTotalIva(productosTabla, parseInt(IVAValue)),
+        iva: getIva(productosTabla),
+        totalIva: getTotalIva(productosTabla),
         productos: getIdsProductos(),
         cantidades: getCantidades(),
+        id: localStorage.getItem('factura'),
         estancias: getArrayEstancias(),
         IVAValue: IVAValue,
         tipo: 'estancias'
     }
 
-    addFactura(nuevaFactura);
+    //addFactura(nuevaFactura);
+    setFacturaConsulta(prevProductos => ({...nuevaFactura}));
+    updateFactura(nuevaFactura);
     setShowGuardar(false);
 
     setShowElegir(true);
-    // setAnimationStyle('animate__animated animate__fadeIn'); 
-    // setAlertText('Factura guardada correctamente');
-    // setAlerStyle('alert alert-success');
-    // eliminarAlerta();
   }
 
   const getArrayEstancias = () => {
@@ -371,6 +475,77 @@ export const NuevaFacturaEstancias = () => {
     return estancias;
   }
 
+  const getFechaFormat = () => {
+    const elFecha = document.getElementById('inputFecha');
+    return elFecha.value;
+  }
+
+  const getIdsProductos = () => {
+    const ids = [];
+    productosTabla.forEach(producto => {
+      ids.push(producto.id);
+    });
+    return ids;
+  }
+
+  const getCantidades = () => {
+    const cantidades = [];
+    productosTabla.forEach(producto => {
+      cantidades.push(producto.cantidad);
+    });
+    return cantidades;
+  }
+
+  const handleInputEditar = (e) => {
+    e.preventDefault();
+    setShowGuardar(true);
+  }
+
+  const handleEditarFactura = () => {
+    setmModoEdit(false);
+    setBtnDisabled(false);
+  }
+
+  const handleGenerarWord = () => {
+    console.log('productosTabla: ', productosTabla);
+    generarWord(facturaConsulta, productosTabla);
+  }
+
+  const ordenar = () => {
+    productosTabla.sort(dynamicSort('orden'));
+    console.log('orden', productosTabla);
+    setProductosTabla(prevProductos => ([...productosTabla]));
+  }
+
+  function dynamicSort(property) {
+    var sortOrder = 1;
+    if(property[0] === "-") {
+        sortOrder = -1;
+        property = property.substr(1);
+    }
+    return function (a,b) {
+        /* next line works with strings and numbers, 
+         * and you may want to customize it to your needs
+         */
+        var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+        return result * sortOrder;
+    }
+  }
+
+  const middleEstancia = (e) => {
+    if (e.target.value.length >= 1){
+      setBtnDisabledAniadirEstancia(false);
+    }else{
+      setBtnDisabledAniadirEstancia(true);
+    }
+    handleInputChangeEstancia(e);
+  }
+
+  const middleEstancias = (e) => {
+    localStorage.setItem('estanciaSelected', e.target.id);
+    document.getElementById('estanciaSelected').value = e.target.name;
+    setBtnDisabledEliminarEstancia(false);
+  }
 
   const handleInputGuardarEstancia = (e) => {
     e.preventDefault();
@@ -404,12 +579,10 @@ export const NuevaFacturaEstancias = () => {
     eliminarProdsEstancia(idEstancia);
   }
 
-  function removeItemFromArr ( arr, item ) {
-    var i = arr.indexOf( item );
- 
-    if ( i !== -1 ) {
-        arr.splice( i, 1 );
-    }
+  function uuidv4() {
+    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+    );
   }
 
   const eliminarProdsEstancia = (idEstancia) => {
@@ -423,56 +596,45 @@ export const NuevaFacturaEstancias = () => {
     console.log('eliminarProdsEstancia 2 ', productosTabla);
   }
 
-  function uuidv4() {
-    return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-      (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-    );
-  }
-
-  const getFechaFormat = () => {
-    const elFecha = document.getElementById('inputFecha');
-    return elFecha.value;
-  }
-
-  const getIdsProductos = () => {
-    const ids = [];
-    productosTabla.forEach(producto => {
-      ids.push(producto.id);
-    });
-    return ids;
-  }
-
-  const getCantidades = () => {
-    const cantidades = [];
-    productosTabla.forEach(producto => {
-      cantidades.push(producto.cantidad);
-    });
-    return cantidades;
-  }
-
-  const handleInputGuardar = (e) => {
-    e.preventDefault();
-    setShowGuardar(true);
-  }
-
-  const middleEstancias = (e) => {
-    localStorage.setItem('estanciaSelected', e.target.id);
-    document.getElementById('estanciaSelected').value = e.target.name;
-    setBtnDisabledEliminarEstancia(false);
-  }
-
 
   return (
     <>
       <br></br>
       <br></br>
-      <h4>Nueva Factura por estancias</h4>
+      <div className='container'>
+        <div className='row'>
+          <div className='col-8'>
+            <h4>Consultar factura</h4>
+          </div>
+          <div className='col-4 '>
+            <div style={{float: 'right'}}>
+              <button
+                className='btn btn-primary'
+                onClick={handleEditarFactura}
+                type='submit'
+                style={{marginRight: '8px'}}
+              >Editar factura</button>
+              <button
+                className='btn btn-primary'
+                onClick={handleGenerarWord}
+                type='submit'
+              >Generar Word</button>
+            </div>
+            
+          </div>
+          {/* <div className='col-2'>
+            
+          </div> */}
+        </div>
+      </div>
+      
       <hr></hr>
 
       {/* Titulo, fecha  y descripcion de la factura */}
       <form className='sec-uno-fac'>
 
         <div className='row'>
+
           <div className='col-5'>
             <input
               className='form-control'
@@ -481,6 +643,7 @@ export const NuevaFacturaEstancias = () => {
               name='tituloValue'
               onChange={middleTitulo}
               value={tituloValue}
+              disabled={modoEdit}
             ></input>
           </div>
 
@@ -488,7 +651,6 @@ export const NuevaFacturaEstancias = () => {
             <p style={{paddingLeft: '60px', paddingTop: '7px'}}>
               <b>IVA:</b>
             </p>
-            
           </div>
 
           <div className='col-2'>
@@ -500,6 +662,7 @@ export const NuevaFacturaEstancias = () => {
               name='IVAValue'
               onChange={middleIVA}
               value={IVAValue}
+              disabled={modoEdit}
             ></input>
           </div>
 
@@ -514,15 +677,16 @@ export const NuevaFacturaEstancias = () => {
               value={fechaValue}
               selected={fechaValue}
               locale="es"
+              disabled={modoEdit}
             ></DatePicker>
           </div>
 
 
           <div className='col-1'>
             <button
-              className='btn btn-primary'
+              className='btn btn-outline-primary'
               disabled={btnDisabled}
-              onClick={handleInputGuardar}
+              onClick={handleInputEditar}
               type='submit'
             >Guardar</button>
           </div>
@@ -530,7 +694,7 @@ export const NuevaFacturaEstancias = () => {
 
           <div className='col-1'>
             <button
-              className='btn btn-danger'
+              className='btn btn-outline-danger'
               disabled={btnDisabled}
               onClick={reset}
               type='reset'
@@ -548,6 +712,7 @@ export const NuevaFacturaEstancias = () => {
               name='descValue'
               onChange={middleDesc}
               value={descValue}
+              disabled={modoEdit}
             ></textarea>
           </div>
         </div>
@@ -563,6 +728,7 @@ export const NuevaFacturaEstancias = () => {
                 variant="outline-secondary"
                 title="Estancias"
                 id="drop-est"
+                disabled={modoEdit}
               >
                 {
                   estancias && estancias.map(est =>
@@ -590,6 +756,7 @@ export const NuevaFacturaEstancias = () => {
               name='estanciaValue'
               onChange={middleEstancia}
               value={estanciaValue}
+              disabled={modoEdit}
             ></input>
           </div>
 
@@ -616,7 +783,7 @@ export const NuevaFacturaEstancias = () => {
 
         {/* Productos y boton de añadir */}
         <div className='row'>
-          
+
           {/* Dropdown de los tipos */}
           <div className='col-3'>
             <InputGroup className="mb-3">
@@ -624,6 +791,7 @@ export const NuevaFacturaEstancias = () => {
                 variant="outline-secondary"
                 title="Tipo de productos "
                 id="input-group-dropdown-1"
+                disabled={modoEdit}
               >
                 {
                   tipProductos && tipProductos.map(tipo =>
@@ -642,8 +810,6 @@ export const NuevaFacturaEstancias = () => {
               />
             </InputGroup>
           </div>
-          
-
 
           {/* Dropdown de los productos */}
           <div className='col-6'>
@@ -652,6 +818,7 @@ export const NuevaFacturaEstancias = () => {
                 variant="outline-secondary"
                 title="Productos "
                 id="input-group-dropdown-1"
+                disabled={modoEdit}
               >
                 {
                   productos && productos.map( producto => 
@@ -688,6 +855,7 @@ export const NuevaFacturaEstancias = () => {
               name='cantidadValue'
               onChange={middleCantidad}
               value={cantidadValue}
+              disabled={modoEdit}
             ></input>
           </div>
 
@@ -700,6 +868,7 @@ export const NuevaFacturaEstancias = () => {
           </div>
         </div>
 
+
         {/* Tabla con los productos que se añaden */}
         <TablaProductosNFEstancias
           id='tablaProd'
@@ -708,6 +877,7 @@ export const NuevaFacturaEstancias = () => {
           alertText={alertText}
           animationStyle={animationStyle}
           alertStyle={alertStyle}
+          modoEdit={modoEdit}
           IVA={IVAValue}
           ordenar={ordenar}
           >
@@ -719,12 +889,12 @@ export const NuevaFacturaEstancias = () => {
       <CompModal
                 show={ showGuardar }
                 handleClose={ handleCloseGuardar }
-                btnAceptar={ handleGuardarFactura }
-                btnText={ 'Guardar' }
+                btnAceptar={ handleEditarFacturaNext }
+                btnText={ 'Editar' }
                 style={ 'primary' }
                 name='ModalGuardar'
-                titulo='Guardar factura'
-                desc='¿Estás seguro que deseas guardar esta factura?'
+                titulo='Editar factura'
+                desc='¿Estás seguro que deseas editar esta factura?'
                 alert={false}
         ></CompModal>
 
@@ -737,7 +907,7 @@ export const NuevaFacturaEstancias = () => {
                 style={ 'primary' }
                 name='ModalGuardar'
                 titulo='Elegir acción'
-                desc='La factura se guardo correctamente'
+                desc='La factura se editó correctamente'
                 alert={true}
         ></CompModal>
 
